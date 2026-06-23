@@ -4,5 +4,5 @@ const port = process.env.PORT || 3000;
 const app = createApp();
 
 app.listen(port, () => {
-  console.log(`OctoFit registration scaffold listening on port ${port}`);
+  console.log(`OctoFit activity logging scaffold listening on port ${port}`);
 });

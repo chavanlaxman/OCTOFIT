@@ -13,6 +13,8 @@ Your job is to run the requirements, architecture, design review, implementation
 ## Constraints
 - Require pipeline input in this exact form: `Jira issue: <KEY>`.
 - Treat the parsed Jira issue key as the pipeline input.
+- The working branch for the pipeline must be named exactly as the Jira issue key, such as `OCTOFIT-4`.
+- Before running implementation work, create or switch to the branch named exactly as the Jira issue key from the repository default branch when that branch does not already exist.
 - If the user does not provide input in the required form, ask for it before running any stage.
 - Run the requirements stage before the architecture stage.
 - Do not skip the requirements stage, because architecture depends on `artifact/requirements.md`.
@@ -40,25 +42,27 @@ Incorrect input examples:
 
 ## Pipeline Stages
 1. Read the user input and extract the Jira issue key only if it matches `Jira issue: <KEY>`.
-2. Invoke `Requirements From Story` with the same source form: `Jira issue: <KEY>`.
-3. Confirm that the requirements stage produced or updated `artifact/requirements.md`.
-4. Invoke `Architecture From Requirements` using `artifact/requirements.md` as the requirements source.
-5. Confirm that the architecture stage produced or updated `artifact/architecture.md`.
-6. Invoke `Design Review` using `artifact/architecture.md` as the architecture source.
-7. Confirm that the design review stage produced or updated `artifact/design-review.md` and capture whether architecture corrections were required.
-8. Invoke `Implementation Planning` using `artifact/architecture.md` as the architecture source.
-9. Confirm that the planning stage produced or updated `artifact/impl-plan.md`.
-10. Invoke `Implementation` using `artifact/impl-plan.md` as the approved implementation source.
-11. Confirm that the implementation stage scaffolded any missing backend or frontend project structure, then wrote or updated the approved backend and frontend code files, or surfaced the blocked remainder clearly.
-12. Invoke `Review` using the implementation scope and supporting artifacts.
-13. Confirm that the review stage returned findings and a readiness recommendation.
-14. Invoke `Verify` using the implementation scope, supporting artifacts, and available final output document.
-15. Confirm that the verification stage returned code verification results and final output document quality status.
-16. Invoke `PR Using Agentic SDLC` using the changed implementation scope, review findings, and verification results.
-17. Confirm that the PR stage staged, committed, and pushed the approved change set, then prepared or created the final pull request or merge request package.
+2. Check the current git branch. If it is not named exactly as the Jira issue key, create or switch to the branch named exactly as the Jira issue key from the repository default branch before continuing.
+3. Invoke `Requirements From Story` with the same source form: `Jira issue: <KEY>`.
+4. Confirm that the requirements stage produced or updated `artifact/requirements.md`.
+5. Invoke `Architecture From Requirements` using `artifact/requirements.md` as the requirements source.
+6. Confirm that the architecture stage produced or updated `artifact/architecture.md`.
+7. Invoke `Design Review` using `artifact/architecture.md` as the architecture source.
+8. Confirm that the design review stage produced or updated `artifact/design-review.md` and capture whether architecture corrections were required.
+9. Invoke `Implementation Planning` using `artifact/architecture.md` as the architecture source.
+10. Confirm that the planning stage produced or updated `artifact/impl-plan.md`.
+11. Invoke `Implementation` using `artifact/impl-plan.md` as the approved implementation source.
+12. Confirm that the implementation stage scaffolded any missing backend or frontend project structure, then wrote or updated the approved backend and frontend code files, or surfaced the blocked remainder clearly.
+13. Invoke `Review` using the implementation scope and supporting artifacts.
+14. Confirm that the review stage returned findings and a readiness recommendation.
+15. Invoke `Verify` using the implementation scope, supporting artifacts, and available final output document.
+16. Confirm that the verification stage returned code verification results and final output document quality status.
+17. Invoke `PR Using Agentic SDLC` using the changed implementation scope, review findings, and verification results.
+18. Confirm that the PR stage staged, committed, and pushed the approved change set, then prepared or created the final pull request or merge request package.
 
 ## Failure Handling
 - If the input is not in the form `Jira issue: <KEY>`, do not start the pipeline.
+- If the pipeline cannot create or switch to the branch named exactly as the Jira issue key, stop and report the branch creation failure before starting any stage work.
 - If the requirements agent needs clarification, surface those questions to the user and pause the pipeline until the answers are available.
 - If `artifact/requirements.md` does not exist after the requirements stage, stop and report that the architecture stage was not started.
 - If the architecture agent needs clarification, ask the user only after confirming the requirements stage completed successfully.
@@ -74,6 +78,7 @@ Incorrect input examples:
 ## Output Format
 Return:
 - Jira source used
+- Working branch used
 - Requirements stage status
 - Requirements artifact path
 - Architecture stage status

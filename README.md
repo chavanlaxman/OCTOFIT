@@ -1,11 +1,11 @@
-# OctoFit Student Registration
+# OctoFit Activity Logging
 
-This repository contains the OCTOFIT-3 student registration scaffold. It provides a small Express backend for `/api/users/register/`, a browser-based registration form that consumes the backend contract, and supporting SDLC artifacts for requirements, architecture, design review, and implementation planning.
+This repository contains the OCTOFIT-4 activity logging scaffold. It extends the earlier registration scaffold with a small Express backend for `/api/activities/`, a browser-based activity logging form, and supporting SDLC artifacts for requirements, architecture, design review, and implementation planning.
 
 ## Project Structure
 
-- `backend/`: Express API, registration contract, validation and account creation service, and automated tests.
-- `frontend/`: Static registration UI that renders fields from the backend contract.
+- `backend/`: Express API, activity logging service, retained registration scaffold, and automated tests.
+- `frontend/`: Static activity logging UI that renders fields from the backend contract and lists persisted activities.
 - `artifact/`: Requirements, architecture, design review, and implementation planning documents.
 
 ## Run Locally
@@ -31,12 +31,18 @@ npm.cmd test
 
 ## Current Registration Behavior
 
-- Exposes the registration endpoint at `/api/users/register/`.
-- Publishes a starter registration contract at `/api/users/register/contract`.
-- Validates and sanitizes registration input before account creation.
+## Current Activity Logging Behavior
+
+- Exposes the activity logging endpoint at `/api/activities/`.
+- Publishes an activity contract at `/api/activities/contract`.
+- Validates and sanitizes activity input before persistence.
 - Returns clear field-level validation errors for invalid submissions.
-- Creates an in-memory student account for valid submissions and rejects duplicate email registration attempts.
+- Persists valid activities in memory and exposes them through `GET /api/activities/` for downstream consumers.
+
+## Retained Scaffold Behavior
+
+- The earlier registration endpoints remain in the backend as an existing scaffold surface, but they are not the primary OCTOFIT-4 delivery target.
 
 ## Delivery Notes
 
-The scaffold intentionally leaves long-term account persistence, production authentication integration, and the final post-registration flow for follow-up decisions captured in the artifact documents.
+The scaffold intentionally leaves long-term persistence, production authentication integration, and downstream analytics-specific aggregation behavior for follow-up decisions captured in the artifact documents.

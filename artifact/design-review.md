@@ -5,32 +5,31 @@
 ### Source
 - Architecture document: `artifact/architecture.md`
 - Requirements document: `artifact/requirements.md`
-- Jira issue: `OCTOFIT-3`
+- Jira issue: `OCTOFIT-4`
 
 ### Review Summary
-The proposed layered registration architecture is a pragmatic fit for the current scope and aligns with the stated requirement to expose student registration through `/api/users/register/`. The main risks are not structural complexity, but missing product and policy decisions that directly affect validation rules, post-registration behavior, and security controls.
+The proposed activity logging architecture fits the OCTOFIT-4 story and stays appropriately small for the current scaffold. The main design question is not the layered structure, but how much downstream-read capability to provide now so the implementation credibly supports dashboard or leaderboard consumers without overbuilding speculative analytics features.
 
 ### Findings
-1. The architecture correctly separates request handling, validation, account creation, and persistence concerns.
-2. The design keeps validation ahead of persistence, which is appropriate for registration workflows.
-3. Several critical behaviors remain under-specified, especially the registration data model and post-registration outcome.
+1. The architecture correctly separates API handling, activity validation, persistence, and downstream retrieval concerns.
+2. Using the same activity service for both create and read paths is a sensible way to satisfy the downstream availability acceptance criterion in this repository.
+3. The absence of a provisioned database and authentication context limits production fidelity, but does not block a credible scaffold implementation.
 
 ### Risks And Gaps
-1. High: The exact registration fields are undefined, so the validation boundary, persistence schema, and API contract cannot yet be finalized.
-2. High: Post-registration behavior is unresolved, which affects session handling, UX flow, and possible downstream integration requirements.
-3. Medium: Password, identity, consent, and privacy obligations are not defined, so security and compliance controls may be incomplete.
-4. Medium: Error response structure is described at a high level, but the architecture does not yet define a canonical validation error format.
+1. Medium: The story does not define exact activity fields, so the initial contract may need revision when product analytics needs are clarified.
+2. Medium: In-memory persistence satisfies scaffold scope only and will not preserve data across restarts.
+3. Medium: Downstream consumers may eventually need filtering, sorting, or aggregation beyond a raw activity feed.
+4. Low: Without session-derived identity, the scaffold must use explicit activity ownership fields or a simplified student role model.
 
 ### Agreed Design Decisions
-1. Keep the layered architecture with a dedicated validation service in front of account creation.
-2. Retain `/api/users/register/` as the intake endpoint for the registration flow.
-3. Treat the registration schema and post-registration flow as explicit follow-up decisions that must be resolved before implementation is complete.
+1. Extend the existing Express scaffold with an `/api/activities/` create endpoint and a read endpoint for downstream consumption.
+2. Keep validation in a dedicated service before persistence.
+3. Implement only the minimum frontend changes needed to exercise activity logging and display stored activity records from the API.
 
 ### Required Architecture Updates
-No architecture file changes are required yet. The current architecture already records the major open questions and risks that need resolution before implementation hardens the contract.
+No further architecture updates are required before implementation. The architecture already captures the deliberate use of an API-readable activity store to satisfy downstream availability in the current workspace.
 
 ### Open Questions
-1. Which student registration fields are mandatory, optional, and system-generated?
-2. What is the required post-registration behavior: account creation only, auto-login, email confirmation, redirect, or another flow?
-3. What password, consent, identity verification, or privacy rules must the registration flow enforce?
-4. What canonical validation error payload should the API return?
+1. Which additional activity fields, if any, are needed for leaderboard or dashboard calculations?
+2. Should downstream consumers receive all activities or user-scoped subsets by default?
+3. What durability and retention expectations apply after the scaffold stage?
