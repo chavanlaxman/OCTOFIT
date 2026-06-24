@@ -3,19 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OctoFit Registration</title>
+    <title>OctoFit Activity Logging</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <main class="page-shell">
       <section class="hero-card">
-        <p class="eyebrow">OCTOFIT-3 starter scaffold</p>
-        <h1>Create your student account</h1>
+        <p class="eyebrow">OCTOFIT-4 activity logging scaffold</p>
+        <h1>Log your latest training session</h1>
         <p class="subtitle">
-          This starter uses the backend registration contract so field changes stay localized while the final product rules are still being decided.
+          This scaffold submits fitness activities to the backend API and renders the persisted feed so downstream dashboard or leaderboard consumers can reuse the same data.
         </p>
         <div id="status" class="status" aria-live="polite"></div>
-        <form id="registration-form" class="form-grid"></form>
+        <form id="activity-form" class="form-grid"></form>
+        <section class="activity-feed" aria-labelledby="recent-activities-title">
+          <div class="feed-header">
+            <h2 id="recent-activities-title">Recent activities</h2>
+            <p class="feed-copy">API-backed activity records available for downstream views.</p>
+          </div>
+          <div id="activity-feed-empty" class="feed-empty">No activities logged yet.</div>
+          <ul id="activity-feed-list" class="feed-list"></ul>
+        </section>
       </section>
     </main>
     <script src="/app.js" defer></script>

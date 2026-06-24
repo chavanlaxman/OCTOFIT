@@ -2,7 +2,7 @@
   "name": "octofit-registration-backend",
   "version": "0.1.0",
   "private": true,
-  "description": "Starter registration backend scaffold for OCTOFIT-3",
+  "description": "Starter activity logging backend scaffold for OCTOFIT-4",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

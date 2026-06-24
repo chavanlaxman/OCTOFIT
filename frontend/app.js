@@ -1,23 +1,35 @@
-const formElement = document.getElementById('registration-form');
+const formElement = document.getElementById('activity-form');
 const statusElement = document.getElementById('status');
+const activityFeedList = document.getElementById('activity-feed-list');
+const activityFeedEmpty = document.getElementById('activity-feed-empty');
 
 async function loadContract() {
-  const response = await fetch('/api/users/register/contract');
+  const response = await fetch('/api/activities/contract');
   if (!response.ok) {
-    throw new Error('Unable to load the registration contract.');
+    throw new Error('Unable to load the activity contract.');
   }
 
   return response.json();
 }
 
+async function loadActivities() {
+  const response = await fetch('/api/activities/');
+  if (!response.ok) {
+    throw new Error('Unable to load recent activities.');
+  }
+
+  const body = await response.json();
+  return body.activities || [];
+}
+
 function renderField(field) {
   const wrapper = document.createElement('div');
-  wrapper.className = field.type === 'checkbox' ? 'field checkbox' : 'field';
+  wrapper.className = 'field';
 
   const input = document.createElement('input');
   input.name = field.name;
   input.id = field.name;
-  input.type = field.type === 'checkbox' ? 'checkbox' : field.type;
+  input.type = field.type;
   input.required = Boolean(field.required);
 
   if (field.minLength) {
@@ -36,11 +48,7 @@ function renderField(field) {
   error.className = 'field-error';
   error.id = `${field.name}-error`;
 
-  if (field.type === 'checkbox') {
-    wrapper.append(input, label, error);
-  } else {
-    wrapper.append(label, input, error);
-  }
+  wrapper.append(label, input, error);
 
   return wrapper;
 }
@@ -71,9 +79,38 @@ function showFieldErrors(errors) {
 function collectPayload(fields) {
   return fields.reduce((payload, field) => {
     const input = document.getElementById(field.name);
-    payload[field.name] = field.type === 'checkbox' ? input.checked : input.value;
+    payload[field.name] = input.value;
     return payload;
   }, {});
+}
+
+function renderActivity(activity) {
+  const item = document.createElement('li');
+  item.className = 'feed-item';
+
+  const title = document.createElement('div');
+  title.className = 'feed-item-title';
+  title.textContent = `${activity.studentName} logged ${activity.activityType}`;
+
+  const meta = document.createElement('div');
+  meta.className = 'feed-item-meta';
+  meta.textContent = `${activity.durationMinutes} min on ${activity.performedAt}`;
+
+  item.append(title, meta);
+
+  if (activity.notes) {
+    const notes = document.createElement('p');
+    notes.className = 'feed-item-notes';
+    notes.textContent = activity.notes;
+    item.append(notes);
+  }
+
+  return item;
+}
+
+function renderActivityFeed(activities) {
+  activityFeedList.replaceChildren(...activities.map(renderActivity));
+  activityFeedEmpty.hidden = activities.length > 0;
 }
 
 async function handleSubmit(event, contract) {
@@ -81,7 +118,7 @@ async function handleSubmit(event, contract) {
   const submitButton = formElement.querySelector('button[type="submit"]');
 
   clearFieldErrors(contract.fields);
-  setStatus('Submitting registration...');
+  setStatus('Submitting activity...');
   submitButton.disabled = true;
 
   try {
@@ -100,10 +137,12 @@ async function handleSubmit(event, contract) {
       return;
     }
 
+    const activities = await loadActivities();
     formElement.reset();
-    setStatus(`Registration complete for ${body.account.email}.`, 'success');
+    renderActivityFeed(activities);
+    setStatus(`Activity saved for ${body.activity.studentName}.`, 'success');
   } catch (error) {
-    setStatus(error.message || 'Registration failed.', 'error');
+    setStatus(error.message || 'Activity logging failed.', 'error');
   } finally {
     submitButton.disabled = false;
   }
@@ -111,8 +150,13 @@ async function handleSubmit(event, contract) {
 
 async function init() {
   try {
-    const contract = await loadContract();
-    setStatus('Starter contract loaded.');
+    const [contract, activities] = await Promise.all([
+      loadContract(),
+      loadActivities(),
+    ]);
+
+    renderActivityFeed(activities);
+    setStatus('Activity logger ready.');
 
     contract.fields.forEach((field) => {
       formElement.append(renderField(field));
@@ -123,14 +167,14 @@ async function init() {
 
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
-    submitButton.textContent = 'Create account';
+    submitButton.textContent = 'Log activity';
 
     submitRow.append(submitButton);
     formElement.append(submitRow);
 
     formElement.addEventListener('submit', (event) => handleSubmit(event, contract));
   } catch (error) {
-    setStatus(error.message || 'Unable to initialize the registration form.', 'error');
+    setStatus(error.message || 'Unable to initialize the activity form.', 'error');
   }
 }
 

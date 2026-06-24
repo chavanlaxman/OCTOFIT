@@ -6,71 +6,62 @@
 - Architecture document: `artifact/architecture.md`
 - Design review: `artifact/design-review.md`
 - Requirements document: `artifact/requirements.md`
-- Jira issue: `OCTOFIT-3`
+- Jira issue: `OCTOFIT-4`
 
 ### Planning Summary
-The implementation should start with contract-defining work, then move through backend registration behavior, client integration, and verification. Several tasks can be prepared immediately, but some delivery work remains partially blocked by unresolved registration-field and post-registration decisions.
+The implementation can proceed immediately in this repository by extending the existing Express scaffold with an activities service, API routes, focused frontend updates, and automated tests. The core delivery risk is limited to choosing a minimal activity schema that is useful now without implying unapproved analytics behavior.
 
 ### Delivery Assumptions
-- The platform already has an application backend and an authentication model that the registration flow can extend.
-- The `/api/users/register/` endpoint either exists as a stub or can be added to the current backend service.
-- A client-facing registration UI exists or can be extended in the current product codebase.
+- The existing backend and static frontend in this workspace are the approved implementation surfaces for the story.
+- In-memory persistence is acceptable for the scaffold stage because no external data store is provisioned here.
+- A simple read endpoint for logged activities is sufficient to satisfy downstream availability in the current workspace.
 
 ### Priority And Dependency Rules
-1. Order tasks by dependency first and priority second.
-2. Complete contract-defining backend work before UI wiring and end-to-end verification.
-3. Treat unresolved schema and post-registration decisions as blockers for final implementation completion, not for all preparatory work.
+1. Implement backend activity contract and persistence before changing the frontend.
+2. Add focused automated tests as soon as the backend route exists.
+3. Keep frontend work limited to collecting activities and rendering API-backed recent activity results.
 
 ### Implementation Tasks
-1. Define registration contract
-   - Goal: Document the request fields, validation rules, success response, and validation error shape for `/api/users/register/`.
+1. Define the activity contract
+   - Goal: Choose minimal fields, validation rules, and response shapes for `/api/activities/`.
    - Dependencies: `artifact/requirements.md`, `artifact/architecture.md`, `artifact/design-review.md`
-   - Expected output: A concrete API contract and validation model ready for code implementation.
+   - Expected output: A concrete backend contract for activity creation and retrieval.
 
-2. Implement backend validation flow
-   - Goal: Add request validation, sanitization, and clear error responses for student registration.
-   - Dependencies: Define registration contract
-   - Expected output: Backend logic that rejects invalid submissions without persisting accounts.
+2. Implement backend activity logging
+   - Goal: Add validation, persistence, and success or error responses for activity submissions.
+   - Dependencies: Define the activity contract
+   - Expected output: Backend logic that persists valid activities and rejects invalid ones.
 
-3. Implement account creation flow
-   - Goal: Create the student account when validated input is accepted and apply the configured post-registration outcome.
-   - Dependencies: Implement backend validation flow
-   - Expected output: Backend logic that persists student accounts and returns the expected success response.
+3. Implement downstream activity retrieval
+   - Goal: Expose stored activities through a read endpoint for dashboard or leaderboard consumers.
+   - Dependencies: Implement backend activity logging
+   - Expected output: Backend route that returns persisted activity data.
 
-4. Integrate registration UI
-   - Goal: Connect the client registration experience to `/api/users/register/` and render success and validation states clearly.
-   - Dependencies: Implement backend validation flow, Implement account creation flow
-   - Expected output: UI behavior that submits registration data and handles responses correctly.
+4. Adapt the frontend scaffold
+   - Goal: Replace or repurpose the registration page so a student can submit activity data and see API-backed recent activity results.
+   - Dependencies: Implement backend activity logging, Implement downstream activity retrieval
+   - Expected output: A working in-repo activity logging UI.
 
 5. Add verification coverage
-   - Goal: Create or extend unit and integration tests for success, invalid input, and not-found or missing-field edge cases where relevant.
-   - Dependencies: Implement backend validation flow, Implement account creation flow
-   - Expected output: Automated verification covering happy-path and failure-path registration behavior.
+   - Goal: Extend automated tests to cover invalid activity submission, successful persistence, and downstream retrieval.
+   - Dependencies: Implement backend activity logging, Implement downstream activity retrieval
+   - Expected output: Focused tests for the story acceptance criteria.
 
 6. Validate release readiness
-   - Goal: Run the verification suite and review the final registration behavior and outputs.
-   - Dependencies: Add verification coverage, Integrate registration UI
-   - Expected output: Evidence that the feature is ready for review and PR creation.
+   - Goal: Run the narrow test suite and inspect the changed surface for story alignment.
+   - Dependencies: Add verification coverage, Adapt the frontend scaffold
+   - Expected output: Evidence that the OCTOFIT-4 slice is ready for review.
 
 ### Blocked Tasks
-1. Finalize registration contract
-   - Blocked: partially
-   - Reason: exact registration fields, password rules, consent rules, and canonical error payload are not yet defined.
-
-2. Implement account creation flow
-   - Blocked: partially
-   - Reason: post-registration behavior is still unresolved, so the final success-path behavior cannot be completed confidently.
-
-3. Integrate registration UI
+1. Production-grade persistence
    - Blocked: yes in this repository state
-   - Reason: the current workspace does not contain application source files or an identified client surface to modify.
+   - Reason: no external database or persistence infrastructure is provisioned in the workspace.
 
-4. Add verification coverage
-   - Blocked: yes in this repository state
-   - Reason: there is no product code or existing test suite in the workspace to extend.
+2. Real downstream dashboard or leaderboard integration
+   - Blocked: partially
+   - Reason: the story requires downstream availability, but this workspace does not contain those consumer applications.
 
 ### Open Questions
-1. Which code repository or directories contain the backend and client code for OctoFit?
-2. Which registration fields and validation rules are required for the student account model?
-3. What must happen immediately after successful registration?
-4. What response schema should the API use for validation errors and success responses?
+1. What activity metrics and dimensions do downstream consumers need beyond the scaffold contract?
+2. Should the final product scope include editing, deleting, or filtering activities?
+3. What durable store should replace the scaffold's in-memory repository?
