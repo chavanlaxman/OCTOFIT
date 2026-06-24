@@ -1,5 +1,11 @@
 const express = require('express');
 const path = require('node:path');
+const {
+  activityContract,
+  listActivities,
+  listLeaderboard,
+  logActivity,
+} = require('./activityService');
 const { registrationContract } = require('./registrationContract');
 const { registerStudent } = require('./registrationService');
 
@@ -26,6 +32,31 @@ function createApp() {
     response.json({ status: 'ok' });
   });
 
+  app.get('/api/activities/contract', (request, response) => {
+    response.json({
+      endpoint: activityContract.endpoint,
+      fields: activityContract.fields,
+    });
+  });
+
+  app.get(activityContract.endpoint, (request, response) => {
+    response.json({
+      status: 'success',
+      activities: listActivities(),
+    });
+  });
+
+  app.get('/api/leaderboard/', (request, response) => {
+    response.json({
+      status: 'success',
+      rankings: listLeaderboard(),
+    });
+  });
+
+  app.post(activityContract.endpoint, (request, response) => {
+    const result = logActivity(request.body || {});
+    response.status(result.statusCode).json(result.body);
+  });
   app.get('/api/users/register/contract', (request, response) => {
     response.json({
       endpoint: registrationContract.endpoint,
