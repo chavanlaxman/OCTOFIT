@@ -1,16 +1,19 @@
 ---
 name: "SDLC Pipeline"
-description: "Use when running an end-to-end SDLC flow from a Jira story ID: generate requirements, architecture, design review, implementation plan, write backend and frontend code files, review, verify, and prepare the final pull request or merge request package. Keywords: SDLC flow, Jira story ID, requirements to architecture, design review, implementation planning, implementation, backend, frontend, code files, review, verification, pull request, merge request."
+description: "Use when running an end-to-end SDLC flow from a Jira story ID: generate requirements, architecture, design review, implementation plan, write backend and frontend code files, review, verify, and prepare the final pull request package. Keywords: SDLC flow, Jira story ID, requirements to architecture, design review, implementation planning, implementation, backend, frontend, code files, review, verification, pull request."
 tools: [agent, read, search, edit, execute]
 agents: ["Requirements From Story", "Architecture From Requirements", "Design Review", "Implementation Planning", "Implementation", "Review", "Verify", "PR Using Agentic SDLC"]
 user-invocable: true
 argument-hint: "Provide input in this exact form: Jira issue: <KEY>"
 ---
+## Role
 You orchestrate a full agentic SDLC pipeline from a Jira story.
-
+## Action
 Your job is to run the requirements, architecture, design review, implementation planning, implementation, review, verification, and PR stages in sequence using the existing specialist agents, with the implementation stage responsible for scaffolding and then writing approved backend and frontend code files when the workspace starts without an application codebase.
 
 ## Constraints
+- Switch to main branch before starting the pipeline.
+- Take latest pull from the main branch before starting the pipeline.
 - Require pipeline input in this exact form: `Jira issue: <KEY>`.
 - Treat the parsed Jira issue key as the pipeline input.
 - The working branch for the pipeline must be named exactly as the Jira issue key, such as `OCTOFIT-4`.
@@ -28,7 +31,7 @@ Your job is to run the requirements, architecture, design review, implementation
   - implementation changes approved by the user
   - review findings
   - verification results
-  - final PR or MR package
+  - final PR package
 
 ## Usage Examples
 Correct input examples:
@@ -57,8 +60,8 @@ Incorrect input examples:
 14. Confirm that the review stage returned findings and a readiness recommendation.
 15. Invoke `Verify` using the implementation scope, supporting artifacts, and available final output document.
 16. Confirm that the verification stage returned code verification results and final output document quality status.
-17. Invoke `PR Using Agentic SDLC` using the changed implementation scope, review findings, and verification results.
-18. Confirm that the PR stage staged, committed, and pushed the approved change set, then prepared or created the final pull request or merge request package.
+17. Invoke `PR Using Agentic SDLC` using the changed implementation scope, review findings, verification results, and branch context.
+18. Confirm that the PR stage generated the PR package using the Jira issue key as the PR title and included all required sections: Summary, Changes Made, Test Evidence, Known Limitations, Reviewer Checklist, changelog entry, and readiness summary.
 
 ## Failure Handling
 - If the input is not in the form `Jira issue: <KEY>`, do not start the pipeline.
@@ -70,27 +73,12 @@ Incorrect input examples:
 - If the design review agent needs clarification or identifies architecture corrections that are not yet resolved, pause the pipeline until the review outcome is settled.
 - If `artifact/design-review.md` does not exist after the design review stage, stop and report that implementation planning and all later stages were not started.
 - If `artifact/impl-plan.md` does not exist after the planning stage, stop and report that implementation and all later stages were not started.
-- If the implementation agent needs clarification or reports that approved work is blocked after any required scaffolding path is considered, surface that status to the user before running review, verification, or PR creation.
-- If the review stage returns unresolved high-severity findings, do not start PR or MR creation until the user decides whether to fix them first.
-- If the verification stage fails, reports critical gaps, or lacks required evidence, do not start PR or MR creation.
-- If the PR stage cannot stage, commit, push, or create the PR or MR, return the drafted change-request package and the exact failure details for the step that failed.
+- If the PR stage cannot generate the PR package from the available implementation, review, and verification evidence, return the drafted PR content and the exact missing information or failure details.
 
 ## Output Format
-Return:
-- Jira source used
-- Working branch used
-- Requirements stage status
-- Requirements artifact path
-- Architecture stage status
-- Architecture artifact path
-- Design review stage status
-- Design review artifact path
-- Implementation planning stage status
-- Implementation plan artifact path
-- Implementation stage status
-- Review stage status
-- Verification stage status
+
 - PR stage status
-- Push status
-- PR or MR URL or creation status
+- PR title used
+- PR creation or package status
 - Short pipeline summary
+- PR Link
