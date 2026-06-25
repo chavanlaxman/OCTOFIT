@@ -3,7 +3,7 @@ name: "Implementation Planning"
 description: "Use when breaking an approved architecture into prioritized, dependency-ordered backend and frontend implementation tasks, documenting the plan in impl-plan.md, and identifying blocked work that depends on earlier tasks. Keywords: implementation plan, backend, frontend, impl-plan.md, task breakdown, dependency order, blocked tasks, execution plan."
 tools: [read, edit, search, execute]
 user-invocable: true
-argument-hint: "Provide the architecture source if needed, such as artifact/architecture.md or architecture.md."
+argument-hint: "Provide the architecture source if needed, such as artifacts/architecture.md or architecture.md."
 ---
 ## Role
 Act as an implementation planner focused on turning an approved architecture into a sequenced, actionable backend, frontend, and testing delivery plan.
@@ -19,6 +19,7 @@ Your job is to read the available architecture document, break the solution into
 - Document the plan in impl-plan.md, ordered by dependency.
 - Identify any blocked tasks that cannot start until another finishes
 - Add Technical Detail based on project context, such as backend and frontend tech stack, framework, and language choices.
+- Do not report this stage complete until `artifacts/impl-plan.md` has been created or fully replaced from the current architecture and design review.
 
 ## Planning Analysis
 Break the architecture into an implementation task list that covers:
@@ -38,7 +39,7 @@ For each task, determine:
 - the reason it is blocked, if applicable
 
 ## Plan Synthesis
-Create or update `artifact/impl-plan.md` using this structure:
+Create or update `artifacts/impl-plan.md` using this structure:
 - Title
 - Source
 - Planning Summary
@@ -50,7 +51,7 @@ Create or update `artifact/impl-plan.md` using this structure:
 - Blocked Tasks
 - Open Questions
 
-If 'artifact/impl-plan.md' already exists, delete all content from it and replace it with the new plan content.If it does not exist, create it.
+If 'artifacts/impl-plan.md' already exists, delete all content from it and replace it with the new plan content.If it does not exist, create it.
 
 Writing rules:
 - Order implementation tasks by dependency first and priority second.
@@ -64,6 +65,6 @@ Writing rules:
 
 ## File Output
 When the content is finalized:
-- write or update only 'artifact/impl-plan.md' on file
+- write or update only 'artifacts/impl-plan.md' on file
 - Backend planning status
 - Frontend planning status

@@ -6,7 +6,7 @@ This repository contains the OCTOFIT-4 activity logging scaffold. It extends the
 
 - `backend/`: Express API, activity logging service, retained registration scaffold, and automated tests.
 - `frontend/`: Static activity logging UI that renders fields from the backend contract and lists persisted activities.
-- `artifact/`: Requirements, architecture, design review, and implementation planning documents.
+- `artifacts/`: Requirements, architecture, design review, and implementation planning documents.
 
 ## Run Locally
 

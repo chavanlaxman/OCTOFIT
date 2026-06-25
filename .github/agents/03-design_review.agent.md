@@ -18,6 +18,7 @@ Act as a design reviewer focused on evaluating a proposed architecture and captu
 - Base findings on the architecture document and any linked requirements context.
 - Focus on risks, gaps, inconsistencies, missing decisions, and unclear responsibilities.
 - Update the architecture only when the review identifies a real issue, omission, or ambiguity worth correcting.
+- Do not report this stage complete until `artifacts/design-review.md` has been created or fully replaced, and any required architecture fixes have been applied to `artifacts/architecture.md`.
 
 ## Review Documentation
 Create or update 'artifacts/design-review.md' using this structure:

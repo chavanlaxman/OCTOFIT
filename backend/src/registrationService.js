@@ -135,7 +135,19 @@ function registerStudent(payload) {
   };
 }
 
+function listAccounts() {
+  return Array.from(accountsByEmail.values(), (account) => ({
+    id: account.id,
+    firstName: account.firstName,
+    lastName: account.lastName,
+    email: account.email,
+    role: account.role,
+    createdAt: account.createdAt,
+  }));
+}
+
 module.exports = {
+  listAccounts,
   registerStudent,
   resetAccounts,
   validateRegistrationInput,

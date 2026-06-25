@@ -1,39 +1,51 @@
-# Requirements for OCTOFIT-5
+# Requirements for OCTOFIT-6
 
 ## Title
-Show student leaderboard rankings
+Provide application bootstrap data
 
 ## Source
-- Jira issue: OCTOFIT-5
-- Browse link: https://laxmanchavan2080.atlassian.net/browse/OCTOFIT-5
+- Jira issue: OCTOFIT-6
+- Browse link: https://laxmanchavan2080.atlassian.net/browse/OCTOFIT-6
 
 ## Story Summary
-The system must allow a student to view leaderboard rankings so that progress can be compared with other students using the latest tracked activity data.
+The application must provide a single bootstrap response for the entry experience so a student can load the core OctoFit view without making separate initial requests for each page section.
 
 ## Assumptions
-- The leaderboard ranks students using tracked activity data already persisted by the existing activity logging scaffold.
-- The current story scope is limited to leaderboard retrieval and display, not new authentication or registration behavior.
-- In-memory activity persistence remains acceptable for the scaffold stage because no durable data store is provisioned in this workspace.
-- The story does not define a ranking formula, so the scaffold can rank students by cumulative activity duration with deterministic tie-breaking.
+- The current workspace continues to use the existing Express backend and static frontend as the implementation surfaces.
+- In-memory data remains acceptable for the scaffold stage because no persistent storage or external service layer is provisioned in this repository.
+- Existing activity, registration, and leaderboard data can be reused as the initial sources for the bootstrap response.
+- Teams, challenges, and recommendations may be scaffolded with deterministic placeholder content when no richer source system exists yet.
+
+## Technical Constraints
+- The backend must expose the bootstrap response through `GET /api/bootstrap/`.
+- The frontend must consume bootstrap data from the configured API base URL rather than assuming only same-origin relative endpoints.
+- The bootstrap contract must remain JSON and compatible with the current static frontend architecture.
+- The implementation must preserve the existing activity and registration endpoints.
 
 ## Functional Requirements
-1. The system shall provide leaderboard retrieval through `/api/leaderboard/`.
-2. The system shall return leaderboard data that includes ranking information suitable for display.
-3. The system shall derive leaderboard rankings from the latest tracked activity data available in the current application store.
-4. The system shall aggregate tracked activity data at the student level for leaderboard display.
-5. The system shall order leaderboard entries deterministically so equal totals do not produce unstable ranking output.
-6. The system shall keep the leaderboard data contract readable by downstream dashboard or reporting consumers.
-7. The system shall allow the in-repo frontend to render the leaderboard rankings from the API response.
+1. The system shall expose `GET /api/bootstrap/` for the application entry flow.
+2. The bootstrap response shall include hero content for the main entry view.
+3. The bootstrap response shall include dashboard summary data suitable for immediate rendering.
+4. The bootstrap response shall include users data.
+5. The bootstrap response shall include teams data.
+6. The bootstrap response shall include activities data.
+7. The bootstrap response shall include challenges data.
+8. The bootstrap response shall include leaderboard data.
+9. The bootstrap response shall include recommendations data.
+10. The frontend shall load the bootstrap response on initial page load.
+11. The frontend shall use the configured API base URL when requesting bootstrap data.
+12. The frontend shall render the returned bootstrap sections without requiring separate initial requests for each section.
 
 ## Non-Functional Requirements
-1. Reliability: The leaderboard shall reflect newly logged activities without requiring application restart or manual recomputation.
-2. Reliability: The leaderboard response shall preserve a consistent JSON shape when no activities have been logged.
-3. Security: The leaderboard response shall avoid exposing internal implementation details beyond student-facing ranking data.
-4. Usability: The leaderboard output shall be understandable without requiring consumers to infer the rank ordering logic from raw activity events.
-5. Extensibility: The leaderboard data contract shall support future dashboard or reporting consumers without relying on frontend-only state.
+1. Reliability: The bootstrap endpoint shall return a consistent JSON shape even when one or more data collections are empty.
+2. Reliability: The bootstrap response shall reflect newly created in-memory activity and user data without requiring application restart.
+3. Security: The bootstrap response shall exclude unnecessary internal-only fields and expose only the data needed for the entry experience.
+4. Usability: The entry view shall present meaningful default content even when activity history is empty.
+5. Extensibility: The bootstrap contract shall allow additional entry-view sections to be added without changing the initial request pattern.
+6. Maintainability: The backend bootstrap assembly shall reuse existing domain services where practical instead of duplicating business logic in route handlers.
 
-## Open Questions
-1. Should the product ranking formula stay based on cumulative duration, or should it use points, streaks, or activity-specific weights?
-2. Do downstream consumers need filtering windows such as weekly or monthly leaderboards?
-3. Should students see only top performers or the full ranked list by default?
-4. What durable storage and recalculation behavior are required after the scaffold stage?
+## Questions asked and answers received
+- Question: Which sections must be included in the initial bootstrap payload?
+	Answer: Hero content, dashboard data, users, teams, activities, challenges, leaderboard, and recommendations.
+- Question: How should the frontend consume the bootstrap data?
+	Answer: From the configured API base URL.

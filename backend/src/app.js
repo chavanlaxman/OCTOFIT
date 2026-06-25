@@ -6,6 +6,7 @@ const {
   listLeaderboard,
   logActivity,
 } = require('./activityService');
+const { createBootstrapPayload } = require('./bootstrapService');
 const { registrationContract } = require('./registrationContract');
 const { registerStudent } = require('./registrationService');
 
@@ -51,6 +52,10 @@ function createApp() {
       status: 'success',
       rankings: listLeaderboard(),
     });
+  });
+
+  app.get('/api/bootstrap/', (request, response) => {
+    response.json(createBootstrapPayload());
   });
 
   app.post(activityContract.endpoint, (request, response) => {

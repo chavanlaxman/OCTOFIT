@@ -3,17 +3,50 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="octofit-api-base-url" content="" />
     <title>OctoFit Leaderboard</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <main class="page-shell">
       <section class="hero-card">
-        <p class="eyebrow">OCTOFIT-5 leaderboard scaffold</p>
-        <h1>Track sessions and compare the leaderboard</h1>
-        <p class="subtitle">
+        <p id="hero-eyebrow" class="eyebrow">OctoFit bootstrap</p>
+        <h1 id="hero-title">Track sessions and compare the leaderboard</h1>
+        <p id="hero-subtitle" class="subtitle">
           This scaffold submits fitness activities to the backend API and turns the latest tracked activity data into student leaderboard rankings.
         </p>
+        <section class="dashboard" aria-labelledby="dashboard-title">
+          <div class="dashboard-header">
+            <h2 id="dashboard-title">Dashboard snapshot</h2>
+          </div>
+          <div id="dashboard-cards" class="dashboard-cards"></div>
+        </section>
+        <section class="entry-grid" aria-label="Bootstrap sections">
+          <section class="feed-panel" aria-labelledby="users-title">
+            <div class="feed-header">
+              <h2 id="users-title">Students</h2>
+              <p class="feed-copy">Registered users returned in the bootstrap response.</p>
+            </div>
+            <div id="users-empty" class="feed-empty">No students registered yet.</div>
+            <ul id="users-list" class="feed-list"></ul>
+          </section>
+          <section class="feed-panel" aria-labelledby="teams-title">
+            <div class="feed-header">
+              <h2 id="teams-title">Teams</h2>
+              <p class="feed-copy">Current communities available from the bootstrap payload.</p>
+            </div>
+            <div id="teams-empty" class="feed-empty">No teams available yet.</div>
+            <ul id="teams-list" class="feed-list"></ul>
+          </section>
+          <section class="feed-panel" aria-labelledby="challenges-title">
+            <div class="feed-header">
+              <h2 id="challenges-title">Challenges</h2>
+              <p class="feed-copy">Active challenge scaffolds loaded with the entry experience.</p>
+            </div>
+            <div id="challenges-empty" class="feed-empty">No challenges available yet.</div>
+            <ul id="challenges-list" class="feed-list"></ul>
+          </section>
+        </section>
         <div id="status" class="status" aria-live="polite"></div>
         <form id="activity-form" class="form-grid"></form>
         <section class="leaderboard" aria-labelledby="leaderboard-title">
@@ -31,6 +64,13 @@
           </div>
           <div id="activity-feed-empty" class="feed-empty">No activities logged yet.</div>
           <ul id="activity-feed-list" class="feed-list"></ul>
+        </section>
+        <section class="recommendations" aria-labelledby="recommendations-title">
+          <div class="feed-header">
+            <h2 id="recommendations-title">Recommendations</h2>
+            <p class="feed-copy">Suggestions returned by the bootstrap response.</p>
+          </div>
+          <ul id="recommendations-list" class="feed-list"></ul>
         </section>
       </section>
     </main>

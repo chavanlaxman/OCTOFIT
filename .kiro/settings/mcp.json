@@ -14,6 +14,15 @@
         "confluence_search",
         "confluence_get_page"
       ]
+    },
+    "gitlab": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@zereight/mcp-gitlab",
+        "--api-url=https://git.epam.com/api/v4"
+      ],
+      "disabled": false
     }
   }
 }
