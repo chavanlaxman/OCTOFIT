@@ -91,3 +91,61 @@ test('returns persisted activities for downstream consumers', async () => {
   assert.equal(response.body.activities[0].activityType, 'Swim');
   assert.equal(response.body.activities[1].activityType, 'Run');
 });
+
+test('returns leaderboard rankings derived from the latest tracked activity data', async () => {
+  const app = createApp();
+
+  await request(app)
+    .post('/api/activities/')
+    .send({
+      studentName: 'Jordan Student',
+      activityType: 'Run',
+      durationMinutes: 30,
+      performedAt: '2026-06-20',
+      notes: 'Tempo session',
+    })
+    .expect(201);
+
+  await request(app)
+    .post('/api/activities/')
+    .send({
+      studentName: 'Taylor Student',
+      activityType: 'Cycle',
+      durationMinutes: 60,
+      performedAt: '2026-06-21',
+      notes: 'Endurance ride',
+    })
+    .expect(201);
+
+  await request(app)
+    .post('/api/activities/')
+    .send({
+      studentName: 'Jordan Student',
+      activityType: 'Swim',
+      durationMinutes: 50,
+      performedAt: '2026-06-22',
+      notes: 'Technique drills',
+    })
+    .expect(201);
+
+  const response = await request(app)
+    .get('/api/leaderboard/')
+    .expect(200);
+
+  assert.equal(response.body.status, 'success');
+  assert.equal(response.body.rankings.length, 2);
+  assert.deepEqual(response.body.rankings[0], {
+    rank: 1,
+    studentName: 'Jordan Student',
+    totalDurationMinutes: 80,
+    activityCount: 2,
+    lastPerformedAt: '2026-06-22',
+  });
+  assert.deepEqual(response.body.rankings[1], {
+    rank: 2,
+    studentName: 'Taylor Student',
+    totalDurationMinutes: 60,
+    activityCount: 1,
+    lastPerformedAt: '2026-06-21',
+  });
+});

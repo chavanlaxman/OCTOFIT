@@ -3,19 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OctoFit Activity Logging</title>
+    <title>OctoFit Leaderboard</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <main class="page-shell">
       <section class="hero-card">
-        <p class="eyebrow">OCTOFIT-4 activity logging scaffold</p>
-        <h1>Log your latest training session</h1>
+        <p class="eyebrow">OCTOFIT-5 leaderboard scaffold</p>
+        <h1>Track sessions and compare the leaderboard</h1>
         <p class="subtitle">
-          This scaffold submits fitness activities to the backend API and renders the persisted feed so downstream dashboard or leaderboard consumers can reuse the same data.
+          This scaffold submits fitness activities to the backend API and turns the latest tracked activity data into student leaderboard rankings.
         </p>
         <div id="status" class="status" aria-live="polite"></div>
         <form id="activity-form" class="form-grid"></form>
+        <section class="leaderboard" aria-labelledby="leaderboard-title">
+          <div class="leaderboard-header">
+            <h2 id="leaderboard-title">Student leaderboard</h2>
+            <p class="leaderboard-copy">Ranked by cumulative activity minutes from the latest tracked sessions.</p>
+          </div>
+          <div id="leaderboard-empty" class="leaderboard-empty">Log an activity to start ranking students.</div>
+          <ol id="leaderboard-list" class="leaderboard-list"></ol>
+        </section>
         <section class="activity-feed" aria-labelledby="recent-activities-title">
           <div class="feed-header">
             <h2 id="recent-activities-title">Recent activities</h2>

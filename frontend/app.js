@@ -1,5 +1,7 @@
 const formElement = document.getElementById('activity-form');
 const statusElement = document.getElementById('status');
+const leaderboardList = document.getElementById('leaderboard-list');
+const leaderboardEmpty = document.getElementById('leaderboard-empty');
 const activityFeedList = document.getElementById('activity-feed-list');
 const activityFeedEmpty = document.getElementById('activity-feed-empty');
 
@@ -22,6 +24,15 @@ async function loadActivities() {
   return body.activities || [];
 }
 
+async function loadLeaderboard() {
+  const response = await fetch('/api/leaderboard/');
+  if (!response.ok) {
+    throw new Error('Unable to load leaderboard rankings.');
+  }
+
+  const body = await response.json();
+  return body.rankings || [];
+}
 function renderField(field) {
   const wrapper = document.createElement('div');
   wrapper.className = 'field';
@@ -113,6 +124,35 @@ function renderActivityFeed(activities) {
   activityFeedEmpty.hidden = activities.length > 0;
 }
 
+function renderLeaderboardEntry(entry) {
+  const item = document.createElement('li');
+  item.className = 'leaderboard-item';
+
+  const rank = document.createElement('div');
+  rank.className = 'leaderboard-rank';
+  rank.textContent = `#${entry.rank}`;
+
+  const summary = document.createElement('div');
+  summary.className = 'leaderboard-summary';
+
+  const title = document.createElement('div');
+  title.className = 'leaderboard-name';
+  title.textContent = entry.studentName;
+
+  const meta = document.createElement('div');
+  meta.className = 'leaderboard-meta';
+  meta.textContent = `${entry.totalDurationMinutes} total min across ${entry.activityCount} activit${entry.activityCount === 1 ? 'y' : 'ies'} · latest ${entry.lastPerformedAt}`;
+
+  summary.append(title, meta);
+  item.append(rank, summary);
+
+  return item;
+}
+
+function renderLeaderboard(rankings) {
+  leaderboardList.replaceChildren(...rankings.map(renderLeaderboardEntry));
+  leaderboardEmpty.hidden = rankings.length > 0;
+}
 async function handleSubmit(event, contract) {
   event.preventDefault();
   const submitButton = formElement.querySelector('button[type="submit"]');
@@ -137,10 +177,15 @@ async function handleSubmit(event, contract) {
       return;
     }
 
-    const activities = await loadActivities();
+    const [activities, rankings] = await Promise.all([
+      loadActivities(),
+      loadLeaderboard(),
+    ]);
+
     formElement.reset();
     renderActivityFeed(activities);
-    setStatus(`Activity saved for ${body.activity.studentName}.`, 'success');
+    renderLeaderboard(rankings);
+    setStatus(`Activity saved for ${body.activity.studentName}. Leaderboard updated.`, 'success');
   } catch (error) {
     setStatus(error.message || 'Activity logging failed.', 'error');
   } finally {
@@ -150,13 +195,15 @@ async function handleSubmit(event, contract) {
 
 async function init() {
   try {
-    const [contract, activities] = await Promise.all([
+    const [contract, activities, rankings] = await Promise.all([
       loadContract(),
       loadActivities(),
+      loadLeaderboard(),
     ]);
 
     renderActivityFeed(activities);
-    setStatus('Activity logger ready.');
+    renderLeaderboard(rankings);
+    setStatus('Activity logger and leaderboard ready.');
 
     contract.fields.forEach((field) => {
       formElement.append(renderField(field));
@@ -167,7 +214,7 @@ async function init() {
 
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
-    submitButton.textContent = 'Log activity';
+  submitButton.textContent = 'Log activity';
 
     submitRow.append(submitButton);
     formElement.append(submitRow);

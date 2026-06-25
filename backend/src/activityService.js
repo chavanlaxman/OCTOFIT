@@ -137,6 +137,53 @@ function listActivities() {
   return activities.map((activity) => ({ ...activity }));
 }
 
+function listLeaderboard() {
+  const leaderboardByStudent = new Map();
+
+  for (const activity of activities) {
+    const existingEntry = leaderboardByStudent.get(activity.studentName);
+
+    if (existingEntry) {
+      existingEntry.totalDurationMinutes += activity.durationMinutes;
+      existingEntry.activityCount += 1;
+
+      if (activity.performedAt > existingEntry.lastPerformedAt) {
+        existingEntry.lastPerformedAt = activity.performedAt;
+      }
+
+      continue;
+    }
+
+    leaderboardByStudent.set(activity.studentName, {
+      studentName: activity.studentName,
+      totalDurationMinutes: activity.durationMinutes,
+      activityCount: 1,
+      lastPerformedAt: activity.performedAt,
+    });
+  }
+
+  return Array.from(leaderboardByStudent.values())
+    .sort((left, right) => {
+      if (right.totalDurationMinutes !== left.totalDurationMinutes) {
+        return right.totalDurationMinutes - left.totalDurationMinutes;
+      }
+
+      if (right.activityCount !== left.activityCount) {
+        return right.activityCount - left.activityCount;
+      }
+
+      if (right.lastPerformedAt !== left.lastPerformedAt) {
+        return right.lastPerformedAt.localeCompare(left.lastPerformedAt);
+      }
+
+      return left.studentName.localeCompare(right.studentName);
+    })
+    .map((entry, index) => ({
+      rank: index + 1,
+      ...entry,
+    }));
+}
+
 function logActivity(payload) {
   const { errors, sanitized, isValid } = validateActivityInput(payload);
 
@@ -176,6 +223,7 @@ function logActivity(payload) {
 module.exports = {
   activityContract,
   listActivities,
+  listLeaderboard,
   logActivity,
   resetActivities,
   validateActivityInput,
