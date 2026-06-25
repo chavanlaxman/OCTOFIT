@@ -16,11 +16,6 @@ Your job is to read a source story from Jira, Confluence, word documents, clarif
 - Keep requirements grounded in the source and the user's answers.
 - Separate functional requirements from non-functional requirements.
 
-Prefer questions about:
-- actors and user roles
-- business outcome and success criteria
-- scope boundaries and exclusions
-- integrations and dependencies
 
 ## Requirements Drafting
 Create or update 'artifact/requirements.md' using this structure:
@@ -41,4 +36,4 @@ Create or update 'artifact/requirements.md' using this structure:
 ## output
 When the content is finalized:
 - create the 'artifacts' folder if it does not already exist
-- write or update only 'artifacts/requirements.md'
+- Create a new 'artifact/requirements.md' if it does not exist, or delete all content from it and replace it with the new requirements content if it does exist.
