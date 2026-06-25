@@ -9,6 +9,7 @@ const {
 const { createBootstrapPayload } = require('./bootstrapService');
 const { registrationContract } = require('./registrationContract');
 const { registerStudent } = require('./registrationService');
+const { createTeam, listTeams } = require('./teamService');
 
 function createApp() {
   const app = express();
@@ -54,6 +55,13 @@ function createApp() {
     });
   });
 
+  app.get('/api/teams/', (request, response) => {
+    response.json({
+      status: 'success',
+      teams: listTeams(),
+    });
+  });
+
   app.get('/api/bootstrap/', (request, response) => {
     response.json(createBootstrapPayload());
   });
@@ -62,6 +70,12 @@ function createApp() {
     const result = logActivity(request.body || {});
     response.status(result.statusCode).json(result.body);
   });
+
+  app.post('/api/teams/', (request, response) => {
+    const result = createTeam(request.body || {});
+    response.status(result.statusCode).json(result.body);
+  });
+
   app.get('/api/users/register/contract', (request, response) => {
     response.json({
       endpoint: registrationContract.endpoint,

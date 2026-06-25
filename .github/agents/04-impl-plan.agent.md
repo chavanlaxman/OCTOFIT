@@ -15,6 +15,7 @@ Your job is to read the available architecture document, break the solution into
 - Read the 'artifacts/architecture.md' document before proposing implementation tasks and generate a task breakdown from architecture.md.
 
 - break the approved architecture down into a prioritised, dependency-ordered task list
+- break the approved architecture down into a prioritised, dependency-ordered task list that is ready for execution by the Implementation stage
 
 - Document the plan in impl-plan.md, ordered by dependency.
 - Identify any blocked tasks that cannot start until another finishes
@@ -50,6 +51,7 @@ Create or update `artifacts/impl-plan.md` using this structure:
 - Shared Integration And Verification Tasks
 - Blocked Tasks
 - Open Questions
+- Implementation Readiness Notes
 
 If 'artifacts/impl-plan.md' already exists, delete all content from it and replace it with the new plan content.If it does not exist, create it.
 

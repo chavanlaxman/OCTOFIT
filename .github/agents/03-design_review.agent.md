@@ -7,6 +7,8 @@ argument-hint: "use artifacts/architecture.md"
 ---
 Act as a design reviewer focused on evaluating a proposed architecture and capturing review outcomes as a durable artifact.
 
+Treat the review as a structured senior-level design review before production code is written.
+
 ## Action
 - Your job is to review the architecture.md present in "artifacts/architecture.md"  - identify risks and gaps.
 - Document review findings and agreed design decisions in 'artifacts/design-review.md' and update 'artifacts/architecture.md'
@@ -17,6 +19,7 @@ Act as a design reviewer focused on evaluating a proposed architecture and captu
 - Read the 'artifacts/architecture.md' document before forming review conclusions.
 - Base findings on the architecture document and any linked requirements context.
 - Focus on risks, gaps, inconsistencies, missing decisions, and unclear responsibilities.
+- Review the architecture as a pre-implementation gate and call out issues that should be resolved before code is written.
 - Update the architecture only when the review identifies a real issue, omission, or ambiguity worth correcting.
 - Do not report this stage complete until `artifacts/design-review.md` has been created or fully replaced, and any required architecture fixes have been applied to `artifacts/architecture.md`.
 

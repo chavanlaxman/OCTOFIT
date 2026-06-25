@@ -4,10 +4,12 @@ const request = require('supertest');
 const { createApp } = require('../src/app');
 const { resetActivities } = require('../src/activityService');
 const { resetAccounts } = require('../src/registrationService');
+const { resetTeams } = require('../src/teamService');
 
 test.beforeEach(() => {
   resetActivities();
   resetAccounts();
+  resetTeams();
 });
 
 test('returns the activity logging contract', async () => {
@@ -211,7 +213,7 @@ test('returns a stable empty bootstrap shape before any users or activities exis
   assert.equal(response.body.status, 'success');
   assert.deepEqual(response.body.dashboard, {
     totalUsers: 0,
-    totalTeams: 2,
+    totalTeams: 0,
     totalActivities: 0,
     activeChallenges: 2,
   });
@@ -222,4 +224,142 @@ test('returns a stable empty bootstrap shape before any users or activities exis
   assert.deepEqual(response.body.activities, []);
   assert.deepEqual(response.body.leaderboard, []);
   assert.equal(response.body.recommendations.length, 2);
+});
+
+test('rejects invalid team creation requests', async () => {
+  const app = createApp();
+
+  const response = await request(app)
+    .post('/api/teams/')
+    .send({
+      name: '',
+      memberCount: 0,
+      focus: '',
+    })
+    .expect(400);
+
+  assert.equal(response.body.status, 'error');
+  assert.ok(response.body.errors.name);
+  assert.ok(response.body.errors.memberCount);
+});
+
+test('persists a valid team creation request', async () => {
+  const app = createApp();
+
+  const response = await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'Summit Sprinters',
+      memberCount: 5,
+      focus: 'Hill intervals and speed drills',
+    })
+    .expect(201);
+
+  assert.equal(response.body.status, 'success');
+  assert.equal(response.body.team.name, 'Summit Sprinters');
+  assert.equal(response.body.team.memberCount, 5);
+  assert.equal(response.body.team.focus, 'Hill intervals and speed drills');
+});
+
+test('lists newly created teams through the canonical team listing endpoint', async () => {
+  const app = createApp();
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'Pace Setters',
+      memberCount: 7,
+      focus: 'Weekly endurance sessions',
+    })
+    .expect(201);
+
+  const response = await request(app)
+    .get('/api/teams/')
+    .expect(200);
+
+  assert.equal(response.body.status, 'success');
+  assert.equal(response.body.teams.length, 1);
+  assert.equal(response.body.teams[0].name, 'Pace Setters');
+});
+
+test('returns newly created teams in the bootstrap payload', async () => {
+  const app = createApp();
+
+  const createResponse = await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'Relay Rockets',
+      memberCount: 4,
+      focus: 'Relay practice and recovery runs',
+    })
+    .expect(201);
+
+  const listResponse = await request(app)
+    .get('/api/teams/')
+    .expect(200);
+
+  const response = await request(app)
+    .get('/api/bootstrap/')
+    .expect(200);
+
+  assert.equal(response.body.status, 'success');
+  assert.equal(response.body.teams.length, 1);
+  assert.deepEqual(createResponse.body.team, {
+    id: 1,
+    name: 'Relay Rockets',
+    memberCount: 4,
+    focus: 'Relay practice and recovery runs',
+  });
+  assert.deepEqual(listResponse.body.teams[0], createResponse.body.team);
+  assert.deepEqual(response.body.teams[0], createResponse.body.team);
+  assert.equal(response.body.dashboard.totalTeams, 1);
+});
+
+test('uses the same in-memory team source for listing and bootstrap responses', async () => {
+  const app = createApp();
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'Trail Blazers',
+      memberCount: 6,
+      focus: 'Weekend trail runs',
+    })
+    .expect(201);
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'Core Crew',
+      memberCount: 3,
+      focus: 'Strength circuits',
+    })
+    .expect(201);
+
+  const listResponse = await request(app)
+    .get('/api/teams/')
+    .expect(200);
+
+  const bootstrapResponse = await request(app)
+    .get('/api/bootstrap/')
+    .expect(200);
+
+  assert.equal(listResponse.body.status, 'success');
+  assert.equal(bootstrapResponse.body.status, 'success');
+  assert.deepEqual(bootstrapResponse.body.teams, listResponse.body.teams);
+  assert.deepEqual(listResponse.body.teams, [
+    {
+      id: 2,
+      name: 'Core Crew',
+      memberCount: 3,
+      focus: 'Strength circuits',
+    },
+    {
+      id: 1,
+      name: 'Trail Blazers',
+      memberCount: 6,
+      focus: 'Weekend trail runs',
+    },
+  ]);
+  assert.equal(bootstrapResponse.body.dashboard.totalTeams, 2);
 });

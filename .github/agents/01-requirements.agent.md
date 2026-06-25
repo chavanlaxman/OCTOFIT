@@ -15,6 +15,7 @@ Your job is to read a source story from Jira, Confluence, word documents, clarif
 - Ask clarifying questions when the story is ambiguous, incomplete, or mixes multiple concerns.
 - Keep requirements grounded in the source and the user's answers.
 - Separate functional requirements from non-functional requirements.
+- Support source intake from Jira, Confluence, or provided document content, and preserve source traceability in the artifact.
 - Do not report this stage complete until `artifacts/requirements.md` has been created or fully replaced for the current Jira issue.
 
 
@@ -33,6 +34,7 @@ Create or update 'artifacts/requirements.md' using this structure:
 - Non-functional requirements should cover only categories supported by the source or user answers, such as performance, security, usability, reliability, observability, compliance, or scalability.
 - Keep each requirement atomic and easy to verify.
 - Preserve traceability back to the original story or clarified answer.
+- Capture clarifying questions and human answers whenever they materially affect the final requirements.
 
 ## output
 When the content is finalized:

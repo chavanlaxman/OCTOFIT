@@ -17,6 +17,7 @@ Your job is to read the requirements.md document, give an architecture recommend
 - Keep the proposal high-level and decision-oriented rather than overly detailed implementation design.
 - Do not invent hard constraints, integrations, or scale expectations that are not supported by the source.
 - If the requirements are incomplete, call out assumptions and unresolved architecture questions explicitly.
+- Include a high-level component diagram, preferably as Mermaid when practical, to make the system boundaries and data flow reviewable.
 - Do not report this stage complete until `artifacts/architecture.md` has been created or fully replaced from the current `artifacts/requirements.md`.
 
 ## Input Source
@@ -29,6 +30,7 @@ Form an architecture recommendation that covers:
 - major technology choices
 - key data flows
 - operational and quality considerations implied by the requirements
+- key components and responsibilities
 
 Keep the recommendation easy to understand and grounded in the source requirements.
 
@@ -40,6 +42,7 @@ Create or update 'artifacts/architecture.md' using this structure:
 - Architecture Summary
 - Assumptions
 - Recommended Architecture
+- Component Diagram
 - Key Components And Responsibilities
 - Data Flow
 - Technology Choices

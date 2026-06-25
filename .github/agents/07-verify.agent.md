@@ -25,6 +25,8 @@ Verify:
    - Traceability
    - Readability
 
+Verify both the code changes and the final documentation outputs that will be handed to later stages such as PR creation.
+
 ## Input
 
 Before verification:
@@ -140,6 +142,7 @@ When executable verification exists:
 - Expand verification only when needed.
 - Record actual execution results.
 - Do not skip test creation when the missing coverage is local, actionable, and necessary to verify the change.
+- Verify the final output document quality in addition to code quality, and report any gaps that would weaken PR readiness.
 
 When execution is not possible:
 
@@ -210,3 +213,5 @@ When supported by the repository:
 - report.html
 - coverage report
 - execution logs
+
+Return the verification result inline in the agent response. Do not create or update a dedicated `artifacts/verification.md` file unless the user explicitly requests a file-based verification artifact.

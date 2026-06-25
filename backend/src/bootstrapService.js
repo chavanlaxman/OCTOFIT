@@ -1,20 +1,6 @@
 const { listActivities, listLeaderboard } = require('./activityService');
 const { listAccounts } = require('./registrationService');
-
-const teams = [
-  {
-    id: 'team-ocean-sprinters',
-    name: 'Ocean Sprinters',
-    memberCount: 8,
-    focus: 'Intervals and sprint sessions',
-  },
-  {
-    id: 'team-reef-riders',
-    name: 'Reef Riders',
-    memberCount: 6,
-    focus: 'Endurance rides and cross-training',
-  },
-];
+const { listTeams } = require('./teamService');
 
 const challenges = [
   {
@@ -76,13 +62,14 @@ function buildBootstrapUsers(users) {
 
 function createBootstrapPayload() {
   const users = listAccounts();
+  const teams = listTeams();
   const activities = listActivities();
   const leaderboard = listLeaderboard();
 
   return {
     status: 'success',
     hero: {
-      eyebrow: 'OCTOFIT-6 bootstrap experience',
+      eyebrow: 'OctoFit entry experience',
       title: 'Load your OctoFit home view in one request',
       subtitle: 'The app entry response includes the hero, dashboard, community data, recent activities, challenges, rankings, and recommendations.',
     },
