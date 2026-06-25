@@ -34,10 +34,10 @@ Review available inputs including:
 - Changed files
 - Git diff
 - Pull request details
-- artifact/requirements.md
-- artifact/architecture.md
-- artifact/design-review.md
-- artifact/impl-plan.md
+- artifacts/requirements.md
+- artifacts/architecture.md
+- artifacts/design-review.md
+- artifacts/impl-plan.md
 - Final output document
 
 # Verification Workflow
@@ -58,6 +58,10 @@ Create a verification plan before executing tests.
 
 Generate or update focused verification coverage for affected functionality.
 
+If impacted functionality lacks sufficient automated coverage and a focused test can be added in this repository, add that test before making the final verification decision.
+
+Assume the Implementation agent should already have added the first focused tests for the changed behavior. In this stage, add tests only when that baseline coverage is missing, incomplete, or insufficient for confident verification.
+
 ### Unit Testing
 
 Verify:
@@ -67,6 +71,10 @@ Verify:
 - Error handling
 - Boundary conditions
 - Edge cases
+
+Add or update focused unit tests when a coverage gap prevents confident verification of impacted logic.
+
+Do not duplicate tests that the Implementation stage should have added unless they need extension or correction for verification.
 
 Use the repository's existing test runner, patterns, and project conventions.
 
@@ -80,6 +88,10 @@ Verify:
 - Dependency interactions
 
 Prefer narrow integration coverage over broad end-to-end testing.
+
+Add or update focused integration tests when module interaction coverage is missing for the changed behavior.
+
+Prefer extending existing implementation-added coverage over creating parallel duplicate tests.
 
 ### Regression Analysis
 
@@ -127,6 +139,7 @@ When executable verification exists:
 - Run the smallest relevant test suite first.
 - Expand verification only when needed.
 - Record actual execution results.
+- Do not skip test creation when the missing coverage is local, actionable, and necessary to verify the change.
 
 When execution is not possible:
 
@@ -145,6 +158,9 @@ When execution is not possible:
 - Do not introduce unsupported frameworks or infrastructure.
 - Add tests only for impacted functionality and closely related edge cases.
 - Report gaps instead of assuming coverage.
+- Do not return `PASS` when a necessary focused test was missing but could have been added locally and was not added.
+- If verification is blocked from adding or running tests, state that explicitly in the decision and coverage gaps.
+- Treat missing baseline tests from Implementation as a verification finding, and add only the minimum follow-up coverage needed to complete verification when feasible.
 
 # Deliverables
 
@@ -161,6 +177,8 @@ Generate:
 - Unit Tests
 - Integration Tests
 - Regression Checks
+- Tests Added Or Updated
+- Execution Evidence
 
 ## Document Review Findings
 

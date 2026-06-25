@@ -1,12 +1,37 @@
 const formElement = document.getElementById('activity-form');
 const statusElement = document.getElementById('status');
+const heroEyebrowElement = document.getElementById('hero-eyebrow');
+const heroTitleElement = document.getElementById('hero-title');
+const heroSubtitleElement = document.getElementById('hero-subtitle');
+const dashboardCardsElement = document.getElementById('dashboard-cards');
+const usersListElement = document.getElementById('users-list');
+const usersEmptyElement = document.getElementById('users-empty');
+const teamsListElement = document.getElementById('teams-list');
+const teamsEmptyElement = document.getElementById('teams-empty');
+const challengesListElement = document.getElementById('challenges-list');
+const challengesEmptyElement = document.getElementById('challenges-empty');
 const leaderboardList = document.getElementById('leaderboard-list');
 const leaderboardEmpty = document.getElementById('leaderboard-empty');
 const activityFeedList = document.getElementById('activity-feed-list');
 const activityFeedEmpty = document.getElementById('activity-feed-empty');
+const recommendationsList = document.getElementById('recommendations-list');
+
+function getApiBaseUrl() {
+  if (window.OCTOFIT_API_BASE_URL) {
+    return String(window.OCTOFIT_API_BASE_URL).replace(/\/$/, '');
+  }
+
+  const metaElement = document.querySelector('meta[name="octofit-api-base-url"]');
+  const metaValue = metaElement ? metaElement.content.trim() : '';
+  return metaValue.replace(/\/$/, '');
+}
+
+function buildApiUrl(path) {
+  return `${getApiBaseUrl()}${path}`;
+}
 
 async function loadContract() {
-  const response = await fetch('/api/activities/contract');
+  const response = await fetch(buildApiUrl('/api/activities/contract'));
   if (!response.ok) {
     throw new Error('Unable to load the activity contract.');
   }
@@ -14,25 +39,15 @@ async function loadContract() {
   return response.json();
 }
 
-async function loadActivities() {
-  const response = await fetch('/api/activities/');
+async function loadBootstrap() {
+  const response = await fetch(buildApiUrl('/api/bootstrap/'));
   if (!response.ok) {
-    throw new Error('Unable to load recent activities.');
+    throw new Error('Unable to load the app bootstrap data.');
   }
 
-  const body = await response.json();
-  return body.activities || [];
+  return response.json();
 }
 
-async function loadLeaderboard() {
-  const response = await fetch('/api/leaderboard/');
-  if (!response.ok) {
-    throw new Error('Unable to load leaderboard rankings.');
-  }
-
-  const body = await response.json();
-  return body.rankings || [];
-}
 function renderField(field) {
   const wrapper = document.createElement('div');
   wrapper.className = 'field';
@@ -95,6 +110,104 @@ function collectPayload(fields) {
   }, {});
 }
 
+function renderHero(hero) {
+  heroEyebrowElement.textContent = hero.eyebrow;
+  heroTitleElement.textContent = hero.title;
+  heroSubtitleElement.textContent = hero.subtitle;
+}
+
+function renderDashboardCard(label, value) {
+  const item = document.createElement('div');
+  item.className = 'dashboard-card';
+
+  const valueElement = document.createElement('div');
+  valueElement.className = 'dashboard-value';
+  valueElement.textContent = String(value);
+
+  const labelElement = document.createElement('div');
+  labelElement.className = 'dashboard-label';
+  labelElement.textContent = label;
+
+  item.append(valueElement, labelElement);
+  return item;
+}
+
+function renderDashboard(dashboard) {
+  dashboardCardsElement.replaceChildren(
+    renderDashboardCard('Users', dashboard.totalUsers),
+    renderDashboardCard('Teams', dashboard.totalTeams),
+    renderDashboardCard('Activities', dashboard.totalActivities),
+    renderDashboardCard('Active challenges', dashboard.activeChallenges),
+  );
+}
+
+function renderUser(user) {
+  const item = document.createElement('li');
+  item.className = 'feed-item';
+
+  const title = document.createElement('div');
+  title.className = 'feed-item-title';
+  title.textContent = `${user.firstName} ${user.lastName}`;
+
+  const meta = document.createElement('div');
+  meta.className = 'feed-item-meta';
+  meta.textContent = user.role;
+
+  item.append(title, meta);
+  return item;
+}
+
+function renderUsers(users) {
+  usersListElement.replaceChildren(...users.map(renderUser));
+  usersEmptyElement.hidden = users.length > 0;
+}
+
+function renderTeam(team) {
+  const item = document.createElement('li');
+  item.className = 'feed-item';
+
+  const title = document.createElement('div');
+  title.className = 'feed-item-title';
+  title.textContent = team.name;
+
+  const meta = document.createElement('div');
+  meta.className = 'feed-item-meta';
+  meta.textContent = `${team.memberCount} members`;
+
+  const detail = document.createElement('p');
+  detail.className = 'feed-item-notes';
+  detail.textContent = team.focus;
+
+  item.append(title, meta, detail);
+  return item;
+}
+
+function renderTeams(teams) {
+  teamsListElement.replaceChildren(...teams.map(renderTeam));
+  teamsEmptyElement.hidden = teams.length > 0;
+}
+
+function renderChallenge(challenge) {
+  const item = document.createElement('li');
+  item.className = 'feed-item';
+
+  const title = document.createElement('div');
+  title.className = 'feed-item-title';
+  title.textContent = challenge.title;
+
+  const meta = document.createElement('div');
+  meta.className = 'feed-item-meta';
+  meta.textContent = `${challenge.status} · ${challenge.target}`;
+
+  item.append(title, meta);
+  return item;
+}
+
+function renderChallenges(challenges) {
+  challengesListElement.replaceChildren(...challenges.map(renderChallenge));
+  challengesEmptyElement.hidden = challenges.length > 0;
+}
+
 function renderActivity(activity) {
   const item = document.createElement('li');
   item.className = 'feed-item';
@@ -153,6 +266,38 @@ function renderLeaderboard(rankings) {
   leaderboardList.replaceChildren(...rankings.map(renderLeaderboardEntry));
   leaderboardEmpty.hidden = rankings.length > 0;
 }
+
+function renderRecommendation(recommendation) {
+  const item = document.createElement('li');
+  item.className = 'feed-item';
+
+  const title = document.createElement('div');
+  title.className = 'feed-item-title';
+  title.textContent = recommendation.title;
+
+  const detail = document.createElement('p');
+  detail.className = 'feed-item-notes';
+  detail.textContent = recommendation.detail;
+
+  item.append(title, detail);
+  return item;
+}
+
+function renderRecommendations(recommendations) {
+  recommendationsList.replaceChildren(...recommendations.map(renderRecommendation));
+}
+
+function renderBootstrap(bootstrap) {
+  renderHero(bootstrap.hero);
+  renderDashboard(bootstrap.dashboard);
+  renderUsers(bootstrap.users || []);
+  renderTeams(bootstrap.teams || []);
+  renderChallenges(bootstrap.challenges || []);
+  renderActivityFeed(bootstrap.activities || []);
+  renderLeaderboard(bootstrap.leaderboard || []);
+  renderRecommendations(bootstrap.recommendations || []);
+}
+
 async function handleSubmit(event, contract) {
   event.preventDefault();
   const submitButton = formElement.querySelector('button[type="submit"]');
@@ -162,7 +307,7 @@ async function handleSubmit(event, contract) {
   submitButton.disabled = true;
 
   try {
-    const response = await fetch(contract.endpoint, {
+    const response = await fetch(buildApiUrl(contract.endpoint), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -177,14 +322,9 @@ async function handleSubmit(event, contract) {
       return;
     }
 
-    const [activities, rankings] = await Promise.all([
-      loadActivities(),
-      loadLeaderboard(),
-    ]);
-
+    const bootstrap = await loadBootstrap();
     formElement.reset();
-    renderActivityFeed(activities);
-    renderLeaderboard(rankings);
+    renderBootstrap(bootstrap);
     setStatus(`Activity saved for ${body.activity.studentName}. Leaderboard updated.`, 'success');
   } catch (error) {
     setStatus(error.message || 'Activity logging failed.', 'error');
@@ -195,15 +335,13 @@ async function handleSubmit(event, contract) {
 
 async function init() {
   try {
-    const [contract, activities, rankings] = await Promise.all([
+    const [contract, bootstrap] = await Promise.all([
       loadContract(),
-      loadActivities(),
-      loadLeaderboard(),
+      loadBootstrap(),
     ]);
 
-    renderActivityFeed(activities);
-    renderLeaderboard(rankings);
-    setStatus('Activity logger and leaderboard ready.');
+    renderBootstrap(bootstrap);
+    setStatus('Bootstrap data, activity logger, and leaderboard ready.');
 
     contract.fields.forEach((field) => {
       formElement.append(renderField(field));
@@ -214,7 +352,7 @@ async function init() {
 
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
-  submitButton.textContent = 'Log activity';
+    submitButton.textContent = 'Log activity';
 
     submitRow.append(submitButton);
     formElement.append(submitRow);

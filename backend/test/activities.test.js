@@ -3,9 +3,11 @@ const assert = require('node:assert/strict');
 const request = require('supertest');
 const { createApp } = require('../src/app');
 const { resetActivities } = require('../src/activityService');
+const { resetAccounts } = require('../src/registrationService');
 
 test.beforeEach(() => {
   resetActivities();
+  resetAccounts();
 });
 
 test('returns the activity logging contract', async () => {
@@ -148,4 +150,76 @@ test('returns leaderboard rankings derived from the latest tracked activity data
     activityCount: 1,
     lastPerformedAt: '2026-06-21',
   });
+});
+
+test('returns bootstrap data for the app entry experience', async () => {
+  const app = createApp();
+
+  await request(app)
+    .post('/api/users/register/')
+    .send({
+      firstName: 'Taylor',
+      lastName: 'Student',
+      email: 'taylor.student@example.com',
+      password: 'Password9',
+      consentAccepted: true,
+    })
+    .expect(201);
+
+  await request(app)
+    .post('/api/activities/')
+    .send({
+      studentName: 'Taylor Student',
+      activityType: 'Cycling',
+      durationMinutes: 45,
+      performedAt: '2026-06-22',
+      notes: 'Hill repeats before class',
+    })
+    .expect(201);
+
+  const response = await request(app)
+    .get('/api/bootstrap/')
+    .expect(200);
+
+  assert.equal(response.body.status, 'success');
+  assert.ok(response.body.hero);
+  assert.ok(response.body.dashboard);
+  assert.ok(Array.isArray(response.body.users));
+  assert.ok(Array.isArray(response.body.teams));
+  assert.ok(Array.isArray(response.body.activities));
+  assert.ok(Array.isArray(response.body.challenges));
+  assert.ok(Array.isArray(response.body.leaderboard));
+  assert.ok(Array.isArray(response.body.recommendations));
+  assert.equal(response.body.users.length, 1);
+  assert.deepEqual(response.body.users[0], {
+    id: 1,
+    firstName: 'Taylor',
+    lastName: 'Student',
+    role: 'student',
+  });
+  assert.equal(response.body.activities.length, 1);
+  assert.equal(response.body.leaderboard.length, 1);
+});
+
+test('returns a stable empty bootstrap shape before any users or activities exist', async () => {
+  const app = createApp();
+
+  const response = await request(app)
+    .get('/api/bootstrap/')
+    .expect(200);
+
+  assert.equal(response.body.status, 'success');
+  assert.deepEqual(response.body.dashboard, {
+    totalUsers: 0,
+    totalTeams: 2,
+    totalActivities: 0,
+    activeChallenges: 2,
+  });
+  assert.deepEqual(response.body.users, []);
+  assert.ok(Array.isArray(response.body.teams));
+  assert.ok(Array.isArray(response.body.activities));
+  assert.ok(Array.isArray(response.body.challenges));
+  assert.deepEqual(response.body.activities, []);
+  assert.deepEqual(response.body.leaderboard, []);
+  assert.equal(response.body.recommendations.length, 2);
 });

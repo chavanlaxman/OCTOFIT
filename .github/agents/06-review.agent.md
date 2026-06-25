@@ -3,7 +3,7 @@ name: "Review"
 description: "Use when performing a structured self-review of an implementation before opening a pull request, evaluating correctness, security, error handling, test coverage, code clarity, DRY concerns, and dependency safety."
 tools: [read, edit, search, execute]
 user-invocable: true
-argument-hint: "Provide the implementation source if needed, such as changed files, artifact/impl-plan.md, artifact/requirements.md, or artifact/architecture.md."
+argument-hint: "Provide the implementation source if needed, such as changed files, artifacts/impl-plan.md, artifacts/requirements.md, or artifacts/architecture.md."
 ---
 ## Role
 Act as a peer reviewer focused on performing a structured code review of the current implementation before a pull request is created.
@@ -15,7 +15,7 @@ Act as a peer reviewer focused on performing a structured code review of the cur
 
 ## Constraints
 - Read the implementation and any available source-of-truth artifacts before making review findings.
-- Base findings on the changed code, `artifact/requirements.md`, `artifact/architecture.md`, `artifact/design-review.md`, and `artifact/impl-plan.md` when available.
+- Base findings on the changed code, `artifacts/requirements.md`, `artifacts/architecture.md`, `artifacts/design-review.md`, and `artifacts/impl-plan.md` when available.
 - Focus on review findings, risks, regressions, and missing coverage rather than re-explaining the implementation.
 
 ## Review Analysis
