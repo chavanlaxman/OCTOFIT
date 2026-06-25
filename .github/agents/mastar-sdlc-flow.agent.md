@@ -18,6 +18,7 @@ Drive the capstone workflow from story intake through PR creation using the spec
 - Accept either `Jira issue: <KEY>` or a short Jira work prompt.
 - Resolve the Jira input only enough to pass the correct normalized input to downstream agents.
 - Orchestrate Each specialist agent is responsible for its own task handling and content generation.
+- In repositories that contain both backend and frontend code, require each downstream stage to make frontend impact explicit for stories that affect user-visible workflows, client-consumed data, bootstrap payloads, or API contracts.
 - Run agents in this order only:
   1. 'Git Preparation'
   2. 'Requirements From Story'
@@ -45,6 +46,8 @@ Drive the capstone workflow from story intake through PR creation using the spec
 - verify `artifacts/architecture.md` exists and was updated from the current requirements artifact before design review and planning.
 - verify `artifacts/design-review.md` exists and reflects the current architecture before implementation planning continues.
 - verify `artifacts/impl-plan.md` exists and reflects the current architecture and design review before implementation.
+- verify the implementation stage either changed the necessary frontend files or produced explicit frontend validation evidence when frontend code was intentionally left unchanged.
+- verify review and verification outputs call out missing frontend impact analysis as a finding or risk instead of silently passing it.
 
 
 ## Workflow

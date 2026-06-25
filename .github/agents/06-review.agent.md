@@ -19,11 +19,13 @@ Use the review checklist as a structured gate before the PR stage.
 - Read the implementation and any available source-of-truth artifacts before making review findings.
 - Base findings on the changed code, `artifacts/requirements.md`, `artifacts/architecture.md`, `artifacts/design-review.md`, and `artifacts/impl-plan.md` when available.
 - Focus on review findings, risks, regressions, and missing coverage rather than re-explaining the implementation.
+- Treat missing frontend impact analysis as a review concern when the repository contains a frontend and the story changes user-visible data, API contracts, bootstrap payloads, or end-user workflows.
 
 ## Review Analysis
 Evaluate the implementation against this checklist:
 
 - Correctness: Does each component behave as specified in `requirements.md`?
+- Frontend Completeness: If the changed behavior affects an existing UI or client data source, was the frontend updated or explicitly validated with evidence?
 - Security: Are secrets excluded from output? Is user input validated?
 - Error Handling: Are API failures, missing files, and empty repositories handled gracefully?
 - Test Coverage: Do tests cover the happy path and the `Not Found` or missing-field edge cases?
