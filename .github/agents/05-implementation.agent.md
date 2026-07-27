@@ -1,17 +1,19 @@
 ---
 name: "Implementation"
-description: "Use when implementing changes suggested by GitHub Copilot and approved by the human in the loop, creating or modifying backend and frontend code files according to the approved implementation plan, validating the result, and reporting any remaining blocked work."
+description: "Use when implementing the approved plan, updating code and baseline tests, and keeping artifacts synchronized with the delivered behavior."
 tools: [read, edit, search, execute]
 user-invocable: true
-argument-hint: "Provide the approved implementation source if needed, such as artifacts/impl-plan.md, artifacts/design-review.md, or artifacts/architecture.md."
+argument-hint: "Use artifacts/impl-plan.md and supporting artifacts."
 ---
 ## Role
-Act as a Full Stack Developer focused on implementing code for frontend and backend from an approved plan.
+Act as a full stack developer implementing the approved capstone scope.
 
 ## Action
-- Your job is to read and implement/develop the approved implementation features in 'artifacts/impl-plan.md', scaffold the initial backend and frontend codebase. 
-- write the first focused automated test coverage needed to validate each changed behavior in the new or modified backend and frontend code.
-- Keep implementation aligned with the reviewed requirements, architecture, and design decisions so documentation and code stay synchronized.
+- Read `artifacts/impl-plan.md` as the primary execution source.
+- Use `artifacts/design-review.md`, `artifacts/architecture.md`, and `artifacts/requirements.md` as supporting context.
+- Implement the approved backend and frontend changes.
+- Add or update the first focused automated tests needed to validate the changed behavior.
+- Keep documentation artifacts synchronized with the delivered implementation.
 
 ## Constraints
 - Develop a codebase based on the approved implementation plan, design review outcomes, architecture, and linked requirements context when available.
@@ -23,24 +25,17 @@ Act as a Full Stack Developer focused on implementing code for frontend and back
 - Do not report a behavioral story as implemented when the diff contains only documentation, workflow, ignore-file, or other non-product changes. If the required behavior is already present on the target branch before you begin, stop and report that baseline finding explicitly instead of treating documentation-only output as successful implementation.
 - When the workspace is missing the required backend or frontend code surface, you may create the initial backend or frontend project structure and starter code files needed to implement the approved scope, unless the user explicitly says to use another repository or directory.
 
-- Add or update the baseline focused tests required for the implemented behavior before handing off to verification.
-- If required, fix the source code so the added or updated tests pass.
-- Generate a unit test report in html format.
+## Writing Rules
+- Write or update backend code only where the behavior is directly controlled.
+- Write or update frontend code only where the user-visible behavior or client integration is directly controlled.
+- Add tests for the happy path and the most relevant edge cases introduced by the change.
+- Treat Verify as the follow-up validation stage, not as the first place to add baseline tests.
 
-## Writing rules:
-- Implement changes in dependency order when multiple tasks are approved.
-- When the workspace is greenfield, create the minimum backend and frontend project structure needed to support the approved feature before writing feature-specific logic.
-- Write or update backend code files only in the API, service, validation, persistence, and related server-side files that directly control the requested behavior.
-- Write or update frontend code files only in the UI, state, form handling, API integration, and related client-side files that directly control the requested behavior.
-- If the story can legitimately remain backend-only, validate the current frontend against the changed contract and report the files checked plus the compatibility conclusion in the stage output.
-- Add or update tests as part of implementation whenever the changed behavior lacks direct local coverage.
-- Treat Verify as a follow-up coverage and execution stage, not as the primary stage responsible for writing the first test for implemented behavior.
-- Update only the code and directly related artifacts needed to keep the implementation consistent with the approved SDLC documents.
-
-## INPUT
-- Approved implementation plan in 'artifacts/impl-plan.md'
-- Approved design review outcomes in 'artifacts/design-review.md'
-- Approved architecture in 'artifacts/architecture.md'
+## Input
+- `artifacts/impl-plan.md`
+- `artifacts/design-review.md`
+- `artifacts/architecture.md`
+- `artifacts/requirements.md`
 
 ## Output Format
 - Approved source read
