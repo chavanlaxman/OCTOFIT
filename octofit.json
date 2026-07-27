@@ -50,7 +50,7 @@
     {
       "name": "PR Using Agentic SDLC",
       "status": "failed",
-      "details": "PR artifact preparation completed on pushed branch feature/OCTOFIT-10-join-existing-team at commit f2c3aa1, but remote MR creation is blocked because the workspace only exposes GitLab through MCP configuration and no callable GitLab MCP tool is available to this agent session. A manual MR creation URL is recorded in artifacts/pr.md."
+      "details": "PR artifact preparation completed on pushed branch feature/OCTOFIT-10-join-existing-team, but remote MR creation is blocked because the workspace only exposes GitLab through MCP configuration and no callable GitLab MCP tool is available to this agent session. A manual MR creation URL is recorded in artifacts/pr.md."
     }
   ],
   "blocker": null
