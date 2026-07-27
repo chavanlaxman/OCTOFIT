@@ -8,7 +8,8 @@
     "implementationPlan": "artifacts/impl-plan.md targets OCTOFIT-10",
     "unitTestReport": "artifacts/unit-test-report.html targets OCTOFIT-10",
     "review": "artifacts/review.md targets OCTOFIT-10",
-    "verify": "artifacts/verify.md targets OCTOFIT-10"
+    "verify": "artifacts/verify.md targets OCTOFIT-10",
+    "pr": "artifacts/pr.md targets OCTOFIT-10"
   },
   "stages": [
     {
@@ -48,8 +49,8 @@
     },
     {
       "name": "PR Using Agentic SDLC",
-      "status": "in-progress",
-      "details": "Ready to begin after creating or switching to a Jira-named feature branch, committing the approved changes, pushing the branch, and attempting MR preparation or creation."
+      "status": "failed",
+      "details": "PR artifact preparation completed on pushed branch feature/OCTOFIT-10-join-existing-team at commit 9c852d7, but remote MR creation is blocked because the workspace only exposes GitLab through MCP configuration and no callable GitLab MCP tool is available to this agent session. A manual MR creation URL is recorded in artifacts/pr.md."
     }
   ],
   "blocker": null
