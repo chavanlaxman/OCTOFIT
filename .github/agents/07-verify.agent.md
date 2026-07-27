@@ -13,7 +13,22 @@ Verify both:
 1. Implementation quality
 2. Final output quality
 
-This includes unit and integration evidence, regression risk, document completeness, consistency, traceability, and readability.
+Verify:
+
+1. Implementation Quality
+   - Unit Tests
+   - Integration Tests
+   - Regression Risk
+
+2. Final Output Quality
+   - Completeness
+   - Consistency
+   - Traceability
+   - Readability
+
+Verify both the code changes and the final documentation outputs that will be handed to later stages such as PR creation.
+When the repository already contains a frontend and the implementation changes user-visible data, bootstrap payloads, API contracts, or client-consumed behavior, verify that frontend impact was either implemented or explicitly validated.
+When the story requests a behavioral change, verify that the branch diff against the target or default branch contains actual backend, frontend, or focused test changes for that behavior rather than only artifacts, workflow files, or ignore rules.
 
 ## Input
 Review available inputs including:
@@ -43,12 +58,65 @@ Create a focused verification plan before running checks.
 - Record actual execution evidence.
 - Validate frontend compatibility when the change affects client-consumed behavior.
 
-### Phase 3 - Final Output Verification
-Review documents for:
-- Completeness
-- Consistency
-- Traceability
-- Readability and formatting quality
+When execution is not possible:
+
+- Do not fabricate results.
+- Clearly explain blocked verification.
+- Identify missing prerequisites.
+
+# Constraints
+
+- Read requirements and implementation artifacts before verification.
+- Verify both code and document quality when both are available.
+- Follow the test pyramid:
+  1. Unit Tests
+  2. Integration Tests
+  3. Existing End-to-End Tests (if available)
+- Do not introduce unsupported frameworks or infrastructure.
+- Add tests only for impacted functionality and closely related edge cases.
+- Report gaps instead of assuming coverage.
+- Do not return `PASS` when a necessary focused test was missing but could have been added locally and was not added.
+- Do not return `PASS` when a changed client-facing contract in a repository with a frontend was not checked for frontend impact and no explicit compatibility evidence exists.
+- Do not return `PASS` or `PASS WITH RISKS` for a behavioral story when the diff against the target or default branch contains only documentation, workflow, ignore-file, or other non-product changes, unless the user explicitly approved a documentation-only outcome after an `already implemented on baseline` finding.
+- If verification is blocked from adding or running tests, state that explicitly in the decision and coverage gaps.
+- Treat missing baseline tests from Implementation as a verification finding, and add only the minimum follow-up coverage needed to complete verification when feasible.
+
+# Deliverables
+
+Generate:
+
+## Verification Summary
+
+- Scope Reviewed
+- Components Verified
+- Documents Reviewed
+
+## Test Results
+
+- Unit Tests
+- Integration Tests
+- Regression Checks
+- Tests Added Or Updated
+- Execution Evidence
+
+## Document Review Findings
+
+- Completeness Assessment
+- Consistency Assessment
+- Traceability Assessment
+- Quality Findings
+
+## Coverage Gaps
+
+List:
+
+- Untested functionality
+- Missing requirements coverage
+- Blocked verification areas
+
+## Verification Decision
+
+One of:
 
 ### Phase 4 - Decision
 Return one decision:

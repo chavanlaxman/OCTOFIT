@@ -16,12 +16,14 @@ Act as a full stack developer implementing the approved capstone scope.
 - Keep documentation artifacts synchronized with the delivered implementation.
 
 ## Constraints
-- Implement in dependency order.
-- Inspect the relevant frontend files before deciding that no frontend code change is needed when backend behavior changes client-consumed data or workflows.
-- Do not report `Frontend files changed: none` without explicit frontend validation evidence.
-- Update only the code and directly related artifacts needed for the approved scope.
-- If baseline tests fail because of the implemented change, fix the changed slice before handing off to verification.
-- Generate or refresh the unit test report in HTML format when the repository workflow supports it.
+- Develop a codebase based on the approved implementation plan, design review outcomes, architecture, and linked requirements context when available.
+- use 'artifacts/impl-plan.md' as the primary source for implementation tasks, and 'artifacts/design-review.md' and 'artifacts/architecture.md' as secondary sources when needed.
+- Before declaring implementation complete, inspect the current branch diff against the target branch or default branch when available, and confirm the story produced a product-code delta in backend files, frontend files, or focused tests for the requested behavior.
+- When the approved plan includes both API or server work and client or UI work, create or modify both the backend code files and the frontend code files unless the user explicitly scopes the request to one side only.
+- When the changed backend behavior affects an existing frontend data source, bootstrap payload, API contract, or user-visible workflow, inspect the corresponding frontend files before deciding that no frontend code change is needed.
+- Do not report the implementation stage complete with `Frontend files changed: none` unless you also provide explicit frontend validation evidence, including the frontend files reviewed and the reason the current UI remains correct without code changes.
+- Do not report a behavioral story as implemented when the diff contains only documentation, workflow, ignore-file, or other non-product changes. If the required behavior is already present on the target branch before you begin, stop and report that baseline finding explicitly instead of treating documentation-only output as successful implementation.
+- When the workspace is missing the required backend or frontend code surface, you may create the initial backend or frontend project structure and starter code files needed to implement the approved scope, unless the user explicitly says to use another repository or directory.
 
 ## Writing Rules
 - Write or update backend code only where the behavior is directly controlled.
@@ -37,6 +39,7 @@ Act as a full stack developer implementing the approved capstone scope.
 
 ## Output Format
 - Approved source read
+- Baseline comparison evidence
 - Backend files changed
 - Frontend files changed
 - Frontend validation evidence when no frontend code changes were made
