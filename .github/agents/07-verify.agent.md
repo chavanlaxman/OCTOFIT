@@ -25,6 +25,9 @@ Verify:
    - Traceability
    - Readability
 
+Verify both the code changes and the final documentation outputs that will be handed to later stages such as PR creation.
+When the repository already contains a frontend and the implementation changes user-visible data, bootstrap payloads, API contracts, or client-consumed behavior, verify that frontend impact was either implemented or explicitly validated.
+
 ## Input
 
 Before verification:
@@ -51,6 +54,7 @@ Analyze:
 - Dependencies
 - Requirements impacted by the change
 - Potential regression areas
+- Frontend surfaces that consume the changed data or workflow
 
 Create a verification plan before executing tests.
 
@@ -86,6 +90,7 @@ Verify:
 - Service integrations
 - Configuration behavior
 - Dependency interactions
+- Existing frontend-to-backend contract compatibility when the frontend consumes the changed API or bootstrap data
 
 Prefer narrow integration coverage over broad end-to-end testing.
 
@@ -139,7 +144,9 @@ When executable verification exists:
 - Run the smallest relevant test suite first.
 - Expand verification only when needed.
 - Record actual execution results.
+- If frontend compatibility is part of the impacted behavior, run the smallest practical frontend-facing or contract-focused validation available and report the evidence.
 - Do not skip test creation when the missing coverage is local, actionable, and necessary to verify the change.
+- Verify the final output document quality in addition to code quality, and report any gaps that would weaken PR readiness.
 
 When execution is not possible:
 
@@ -159,6 +166,7 @@ When execution is not possible:
 - Add tests only for impacted functionality and closely related edge cases.
 - Report gaps instead of assuming coverage.
 - Do not return `PASS` when a necessary focused test was missing but could have been added locally and was not added.
+- Do not return `PASS` when a changed client-facing contract in a repository with a frontend was not checked for frontend impact and no explicit compatibility evidence exists.
 - If verification is blocked from adding or running tests, state that explicitly in the decision and coverage gaps.
 - Treat missing baseline tests from Implementation as a verification finding, and add only the minimum follow-up coverage needed to complete verification when feasible.
 
@@ -210,3 +218,5 @@ When supported by the repository:
 - report.html
 - coverage report
 - execution logs
+
+Return the verification result inline in the agent response. Do not create or update a dedicated `artifacts/verification.md` file unless the user explicitly requests a file-based verification artifact.

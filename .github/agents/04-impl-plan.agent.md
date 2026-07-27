@@ -13,8 +13,11 @@ Your job is to read the available architecture document, break the solution into
 
 ## Constraints
 - Read the 'artifacts/architecture.md' document before proposing implementation tasks and generate a task breakdown from architecture.md.
+- When the workspace already contains a frontend surface, explicitly assess frontend impact for every story that changes a user-facing flow, API contract, bootstrap payload, or data consumed by the client.
+- Do not mark frontend planning complete with an implicit "no frontend work" assumption. Either include concrete frontend implementation tasks or include an explicit frontend validation task with a clear completion signal and rationale for why no frontend code change is required.
 
 - break the approved architecture down into a prioritised, dependency-ordered task list
+- break the approved architecture down into a prioritised, dependency-ordered task list that is ready for execution by the Implementation stage
 
 - Document the plan in impl-plan.md, ordered by dependency.
 - Identify any blocked tasks that cannot start until another finishes
@@ -38,6 +41,12 @@ For each task, determine:
 - whether the task is blocked
 - the reason it is blocked, if applicable
 
+For frontend impact analysis, determine:
+- whether an existing frontend consumes or displays the changed backend data
+- whether the story implies a visible user workflow, even when acceptance criteria are expressed as API behavior
+- whether frontend code changes are required, or whether compatibility validation alone is sufficient
+- what concrete evidence will prove that the frontend remains correct if no frontend code change is planned
+
 ## Plan Synthesis
 Create or update `artifacts/impl-plan.md` using this structure:
 - Title
@@ -50,6 +59,7 @@ Create or update `artifacts/impl-plan.md` using this structure:
 - Shared Integration And Verification Tasks
 - Blocked Tasks
 - Open Questions
+- Implementation Readiness Notes
 
 If 'artifacts/impl-plan.md' already exists, delete all content from it and replace it with the new plan content.If it does not exist, create it.
 
@@ -58,6 +68,7 @@ Writing rules:
 - Give each task a short, action-oriented title.
 - For each task, include the goal, dependencies, and expected output or completion signal.
 - Separate backend tasks, frontend tasks, and shared integration tasks when both code surfaces are in scope.
+- If frontend work is judged unnecessary, include a dedicated frontend validation task that names the affected frontend files and the exact evidence needed to close the task.
 - When the workspace is greenfield, start with explicit backend and frontend scaffolding tasks before feature-specific tasks.
 - Separate tasks that can start immediately from tasks that are blocked.
 - Preserve traceability back to the reviewed architecture.
