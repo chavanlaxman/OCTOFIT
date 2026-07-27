@@ -27,6 +27,7 @@ Verify:
 
 Verify both the code changes and the final documentation outputs that will be handed to later stages such as PR creation.
 When the repository already contains a frontend and the implementation changes user-visible data, bootstrap payloads, API contracts, or client-consumed behavior, verify that frontend impact was either implemented or explicitly validated.
+When the story requests a behavioral change, verify that the branch diff against the target or default branch contains actual backend, frontend, or focused test changes for that behavior rather than only artifacts, workflow files, or ignore rules.
 
 ## Input
 
@@ -167,6 +168,7 @@ When execution is not possible:
 - Report gaps instead of assuming coverage.
 - Do not return `PASS` when a necessary focused test was missing but could have been added locally and was not added.
 - Do not return `PASS` when a changed client-facing contract in a repository with a frontend was not checked for frontend impact and no explicit compatibility evidence exists.
+- Do not return `PASS` or `PASS WITH RISKS` for a behavioral story when the diff against the target or default branch contains only documentation, workflow, ignore-file, or other non-product changes, unless the user explicitly approved a documentation-only outcome after an `already implemented on baseline` finding.
 - If verification is blocked from adding or running tests, state that explicitly in the decision and coverage gaps.
 - Treat missing baseline tests from Implementation as a verification finding, and add only the minimum follow-up coverage needed to complete verification when feasible.
 

@@ -46,7 +46,9 @@ Drive the capstone workflow from story intake through PR creation using the spec
 - verify `artifacts/architecture.md` exists and was updated from the current requirements artifact before design review and planning.
 - verify `artifacts/design-review.md` exists and reflects the current architecture before implementation planning continues.
 - verify `artifacts/impl-plan.md` exists and reflects the current architecture and design review before implementation.
+- verify the implementation stage produced a real product-code delta for the story in backend files, frontend files, or focused tests when compared with the target or default branch, or else explicitly reported that the behavior was already implemented on the baseline.
 - verify the implementation stage either changed the necessary frontend files or produced explicit frontend validation evidence when frontend code was intentionally left unchanged.
+- verify a behavioral story does not advance to PR when the branch diff contains only artifacts, workflow files, ignore rules, or other non-product changes unless the user explicitly approved a documentation-only outcome after an `already implemented on baseline` finding.
 - verify review and verification outputs call out missing frontend impact analysis as a finding or risk instead of silently passing it.
 
 
