@@ -1,80 +1,66 @@
-# Architecture for OCTOFIT-7
+# Architecture for OCTOFIT-8
 
 ## Title
-Fitness Team Creation And Listing Architecture
+Available Team Listing Architecture
 
 ## Source
 - Requirements document: artifacts/requirements.md
-- Jira issue: OCTOFIT-7
+- Jira issue: OCTOFIT-8
 
 ## Architecture Summary
-The recommended architecture adds a dedicated team domain flow to the existing OctoFit backend so students can create teams through `POST /api/teams/`, persist those teams through a single team repository boundary, and retrieve newly created teams through `GET /api/teams/`. The design keeps route handling, team business logic, and team persistence separated so creation and listing stay consistent and maintainable.
+OCTOFIT-8 should reuse the existing team-management slice in the Express backend and expose `GET /api/teams/` as the canonical team-listing interface for clients. The route should delegate to the existing team service and shared team repository so the list response, bootstrap payload, and any prior team-creation flow all read from one team source of truth.
 
 ## Assumptions
-- The existing Express backend in this workspace remains the system boundary for the story.
-- The story requires backend support for team creation and team listing but does not require a new frontend workflow.
-- The canonical team listing route for this story will be `GET /api/teams/` so creation and listing share one resource-oriented API surface.
-- The requirements do not mandate a persistent database, so the persistence mechanism may reuse the project's current storage approach as long as created teams remain available after a successful create request completes and can be returned by the listing capability.
+- The current Express backend remains the system boundary for the story.
+- No new frontend feature is required beyond validating that the existing client can consume the team-listing shape.
+- The current team record shape of `id`, `name`, `memberCount`, and `focus` is sufficient to satisfy the story's display requirement.
+- In-memory persistence remains acceptable for this story because the Jira acceptance criteria require team retrieval for display but do not introduce a new durability requirement.
 
 ## Recommended Architecture
-Use a small layered team-management architecture inside the existing backend:
-1. An API layer exposes `POST /api/teams/` for creation and `GET /api/teams/` for reads.
-2. A team service layer owns request validation orchestration, team creation rules, and response shaping for create and list operations.
-3. A shared team repository or store boundary persists team records and serves both create and list flows from the same source of truth.
-4. Existing frontend or API consumers call the listing capability to observe newly created teams.
+Use the existing layered team stack and keep the listing flow thin:
+1. An API route at `GET /api/teams/` handles HTTP concerns and returns the JSON envelope.
+2. A team service layer provides the API-ready team list and shields route handlers from persistence details.
+3. A shared team repository remains the single source of truth for team records.
+4. The bootstrap payload reuses the same team service output so the frontend sees one consistent team shape.
 
 ```mermaid
 flowchart LR
-    A[Student Client] --> B[POST /api/teams/]
+    A[Student Client] --> B[GET /api/teams/]
     B --> C[Team Route Handler]
     C --> D[Team Service]
     D --> E[Team Repository]
-    E --> F[(Team Store)]
-    D --> G[Created Team Response]
-    A --> H[Team Listing Capability]
-    H --> I[Team List Route Handler]
-    I --> D
-    D --> E
-    E --> J[Team Collection Response]
+    E --> F[(In-Memory Team Store)]
+    D --> G[JSON Team List Response]
+    F --> H[Bootstrap Composition]
+    H --> I[Frontend Team Rendering]
 ```
 
 ## Key Components And Responsibilities
-- Team Creation API: Accepts `POST /api/teams/` requests, parses JSON payloads, and delegates creation work without embedding persistence logic.
-- Team Listing API: Exposes `GET /api/teams/` and returns persisted teams from the same underlying store used by creation.
-- Team Service: Centralizes team creation and retrieval behavior, including any validation, normalization, identifier assignment, and mapping between internal team records and API responses.
-- Team Repository Or Store: Persists team records and acts as the single source of truth for both successful creates and subsequent list reads.
-- Client Consumer: Calls the create endpoint to submit a new team and calls the listing capability to display created teams.
-
-## API Contract Decisions
-- Create route: `POST /api/teams/` remains the required write endpoint.
-- List route: `GET /api/teams/` is the canonical read endpoint for this story.
-- Response style: Both routes should follow the backend's existing JSON envelope pattern, with a top-level `status` field and a domain payload field such as `team` for create and `teams` for list.
-- Ownership: Route handlers own HTTP concerns, the team service owns validation and record creation, and the repository owns storage and retrieval.
+- Team Listing API: Exposes `GET /api/teams/`, owns HTTP status codes and JSON serialization, and returns a `status` plus `teams` response envelope.
+- Team Service: Maps repository records into the client-consumable team shape used by the listing endpoint and bootstrap payload.
+- Team Repository: Stores and returns team records for both the listing route and any upstream creation flow.
+- Bootstrap Service: Reuses the same team service output to keep the frontend bootstrap response aligned with the canonical listing contract.
+- Frontend Consumer: Iterates over the `teams` array and renders team name, member count, and focus details without requiring per-story transformation logic.
 
 ## Data Flow
-1. A student client sends a valid JSON request to `POST /api/teams/`.
-2. The team creation route validates request shape at the API boundary and forwards the request to the team service.
-3. The team service applies team creation rules, constructs a new team record, and writes it through the shared repository or store.
-4. Persistence completes before the API reports success.
-5. The API returns a success response for the created team.
-6. A client requests `GET /api/teams/`.
-7. The listing route reads teams through the same team service and repository path.
-8. The listing response includes the previously created team because both flows depend on the same persisted team source.
+1. A client requests `GET /api/teams/`.
+2. The route handler delegates to the team service.
+3. The team service reads team records from the shared repository and maps them into the public team shape.
+4. The route returns a success envelope containing the `teams` array.
+5. The bootstrap flow reads the same team service output so the frontend-rendered team data stays consistent with the direct listing endpoint.
 
 ## Technology Choices
 - API framework: Existing Express application in the backend.
-- Domain structure: A dedicated team service module behind route handlers.
-- Persistence boundary: A team repository or store abstraction shared by create and list operations.
-- Data format: JSON request and response contracts aligned with the existing backend API style.
-- Initial storage approach: Reuse the repository's current persistence pattern unless a stronger persistence requirement emerges.
+- Domain structure: Existing CommonJS team service and repository modules.
+- Persistence boundary: Existing in-memory team repository reused without introducing new storage infrastructure.
+- Data contract: JSON response envelope with top-level `status` and `teams` fields.
+- Frontend compatibility path: Existing static frontend bootstrap renderer used as the compatibility reference for the team record shape.
 
 ## Risks And Tradeoffs
-- If team persistence remains in-memory, newly created teams may only be durable for the life of the running process; that is acceptable only if it still matches the project's current stage and expectations.
-- The source story does not specify team fields, so the implementation still needs a minimal creation schema and list item shape that fit current application conventions.
-- Keeping create and list flows on one shared repository boundary improves consistency, but it requires discipline to avoid duplicate ad hoc team storage in route handlers or frontend state.
-- Minimal validation assumptions keep the architecture flexible, but product rules such as unique team names or membership constraints may require later service-layer expansion.
+- The Jira story references a React frontend, but the repository currently contains a static JavaScript frontend. Reusing a framework-agnostic JSON shape is the lowest-risk way to satisfy the client-consumability requirement without inventing a framework migration.
+- In-memory team storage remains process-lifetime only, so the endpoint does not provide durability across restarts.
+- The story focuses on listing only, so richer team metadata or pagination should remain out of scope unless a later story requires them.
 
 ## Open Questions
-1. What fields are required in a valid team creation request?
-2. Does the story require team data to survive process restarts, or is the current project storage model sufficient for now?
-3. Are there business rules such as unique names, creator ownership, or member limits that should be enforced during creation?
+1. Should a later story require direct frontend fetches from `GET /api/teams/` instead of consuming the bootstrap payload?
+2. Is process-lifetime in-memory storage still acceptable when a future team-join flow is introduced?

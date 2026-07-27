@@ -36,6 +36,7 @@ Environment note:
 - Require explicit frontend impact analysis for any story that changes a user-visible workflow, client-consumed data, bootstrap payload, or API contract.
 - Treat documentation synchronization as part of done criteria at every stage.
 - Prefer the configured GitLab MCP for remote MR creation, with authenticated GitLab API fallback only when MCP is unavailable or insufficient.
+- When the implementation is ready for the PR stage but the work is still on the default branch or only exists locally, create or switch to the Jira-named feature branch, commit the approved changes, and push that branch before invoking the final MR stage.
 - Ask the user for input only when the missing information cannot be recovered from the source story, repository, artifacts, or current diff.
 
 ## Required Checks
@@ -48,6 +49,7 @@ Environment note:
 - Verify the PR stage includes the capstone-required sections: Summary, Changes Made, Test Evidence, Known Limitations, and Reviewer Checklist.
 - Verify source-story stages used the configured Atlassian MCP when Jira or Confluence input was provided.
 - Verify MR creation uses the configured GitLab MCP and PAT-backed authentication path when remote MR creation is attempted.
+- Verify the implementation-ready diff is committed and pushed on a Jira-named feature branch before the PR or MR stage runs.
 
 ## Workflow
 1. Normalize the user input into the smallest usable story or work item reference.
@@ -58,7 +60,8 @@ Environment note:
 6. Invoke `Implementation` using `artifacts/impl-plan.md` and supporting artifacts.
 7. Invoke `Review` using the changed code and SDLC artifacts.
 8. Invoke `Verify` using the changed code, tests, artifacts, and review result.
-9. Invoke `PR Using Agentic SDLC` automatically with the implementation scope, review findings, verification evidence, and branch context.
+9. Ensure the implementation-ready changes are on a pushed feature branch named for the Jira key, creating and pushing that branch if necessary.
+10. Invoke `PR Using Agentic SDLC` automatically with the implementation scope, review findings, verification evidence, and branch context.
 
 ## Output
 - Short pipeline summary

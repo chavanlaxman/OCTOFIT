@@ -282,6 +282,57 @@ test('lists newly created teams through the canonical team listing endpoint', as
   assert.equal(response.body.teams[0].name, 'Pace Setters');
 });
 
+test('returns a frontend-consumable team listing payload for empty and populated states', async () => {
+  const app = createApp();
+
+  const emptyResponse = await request(app)
+    .get('/api/teams/')
+    .expect(200);
+
+  assert.deepEqual(emptyResponse.body, {
+    status: 'success',
+    teams: [],
+  });
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'North Stars',
+      memberCount: 8,
+      focus: 'Morning cardio sessions',
+    })
+    .expect(201);
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'Studio Strides',
+      memberCount: 5,
+      focus: 'Yoga and mobility blocks',
+    })
+    .expect(201);
+
+  const response = await request(app)
+    .get('/api/teams/')
+    .expect(200);
+
+  assert.equal(response.body.status, 'success');
+  assert.deepEqual(response.body.teams, [
+    {
+      id: 2,
+      name: 'Studio Strides',
+      memberCount: 5,
+      focus: 'Yoga and mobility blocks',
+    },
+    {
+      id: 1,
+      name: 'North Stars',
+      memberCount: 8,
+      focus: 'Morning cardio sessions',
+    },
+  ]);
+});
+
 test('returns newly created teams in the bootstrap payload', async () => {
   const app = createApp();
 

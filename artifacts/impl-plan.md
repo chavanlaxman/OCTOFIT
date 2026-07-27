@@ -1,161 +1,116 @@
 # Implementation Plan
 
 ## Title
-OCTOFIT-7 Implementation Plan
+OCTOFIT-8 Implementation Plan
 
 ## Source
 - Requirements document: artifacts/requirements.md
 - Architecture document: artifacts/architecture.md
 - Design review: artifacts/design-review.md
-- Jira issue: OCTOFIT-7
+- Jira issue: OCTOFIT-8
 
 ## Planning Summary
-OCTOFIT-7 can be delivered in the existing Node.js and Express backend by introducing a dedicated team domain slice for creation and listing, wiring `POST /api/teams/` and a team listing endpoint to the same in-memory repository boundary, and then updating bootstrap composition so existing consumers observe the same persisted team records instead of scaffolded team data. The frontend does not require a new team-creation workflow for this story, but the existing static app should be verified against the updated team source because it already renders team data from the bootstrap payload.
+OCTOFIT-8 should be delivered by validating and tightening the existing team-listing slice rather than introducing a new architecture branch. The backend already centers the team domain around a shared service and repository, so implementation work should focus on keeping `GET /api/teams/` explicitly aligned with the story contract, proving that the response is frontend-consumable, and keeping all SDLC artifacts synchronized with the delivered behavior.
 
 ## Delivery Assumptions
-- The implementation surface is the existing backend Express app in `backend/src` and the static frontend in `frontend/`.
-- The repository currently uses in-memory state for activities and registrations, so OCTOFIT-7 team persistence will follow the same process-lifetime model unless requirements change.
-- The team listing capability required by OCTOFIT-7 can be satisfied by a backend listing endpoint and should also feed the existing bootstrap response so frontend team views stay aligned.
-- No new frontend team-creation form is required by the story.
-- The design review artifact is being treated as the current approved review input even though it does not yet contain OCTOFIT-7-specific findings.
+- The implementation surface is the existing Express backend in `backend/src` and the existing static frontend in `frontend/`.
+- The current team-listing route and bootstrap flow remain the intended client data sources unless a later story demands a new frontend fetch path.
+- Frontend impact exists because the story changes or validates client-consumed data, even though no new UI workflow is expected.
+- In-memory storage remains acceptable for the current story.
 
 ## Priority And Dependency Rules
-1. Establish the canonical team contract and listing route before adding implementation code.
-2. Create one shared team repository boundary before wiring create and list endpoints.
-3. Implement backend service logic before route registration.
-4. Update bootstrap composition only after the backend team source is available.
-5. Add focused automated tests immediately after each backend slice is wired.
-6. Limit frontend work to compatibility validation unless the backend contract forces a UI adjustment.
+1. Reconfirm the canonical list contract from the Jira story before changing tests or code.
+2. Inspect the backend team route and service before deciding whether application code changes are required.
+3. Inspect the frontend team rendering path before deciding that frontend files can remain unchanged.
+4. Add or update focused automated tests immediately after any code or contract-tightening change.
+5. Refresh delivery evidence and synchronized artifacts before PR preparation.
 
 ## Backend Implementation Tasks
 Backend stack: Node.js, Express 4, CommonJS modules, `node:test`, `supertest`, in-memory process storage.
 
-1. Finalize the team API contract and canonical listing route
+1. Confirm the canonical team-list response contract
    - Priority: P0
    - Type: Backend
-   - Goal: Define the request fields, success payload, validation behavior, and the canonical listing endpoint that satisfies the architecture's unspecified team read path.
+   - Goal: Verify that `GET /api/teams/` returns the expected JSON envelope and public team fields required by OCTOFIT-8.
    - Dependencies: artifacts/requirements.md, artifacts/architecture.md, artifacts/design-review.md
-   - Expected output: A documented implementation decision for `POST /api/teams/` and the team listing route, consistent with existing API response conventions.
+   - Expected output: One documented and testable `GET /api/teams/` response contract.
 
-2. Create a shared team repository module
+2. Apply minimal backend code changes only if the route or mapped team shape diverges from the story
    - Priority: P0
    - Type: Backend
-   - Goal: Add a dedicated persistence boundary responsible for storing, retrieving, and resetting team records so create and list flows use the same source of truth.
-   - Dependencies: Finalize the team API contract and canonical listing route
-   - Expected output: A new backend module exposing list, create, and test-reset capabilities for team records.
+   - Goal: Keep the implementation scoped to the route, service, or repository code that directly controls the team-list response.
+   - Dependencies: Confirm the canonical team-list response contract
+   - Expected output: Backend code aligned with the OCTOFIT-8 contract, or explicit evidence that no backend logic change was required.
 
-3. Implement the team service layer
+3. Add focused backend tests for the client-consumable team-list contract
    - Priority: P0
    - Type: Backend
-   - Goal: Centralize validation, normalization, identifier assignment, and response shaping for team creation and listing without pushing business logic into Express route handlers.
-   - Dependencies: Create a shared team repository module
-   - Expected output: A service module that returns API-ready create and list results and preserves the clear separation required by the story.
-
-4. Register team creation and listing routes in the Express app
-   - Priority: P0
-   - Type: Backend
-   - Goal: Expose `POST /api/teams/` and the canonical listing endpoint through `backend/src/app.js`, matching current JSON and status code conventions.
-   - Dependencies: Implement the team service layer
-   - Expected output: Reachable API routes backed by the new team service.
-
-5. Replace bootstrap scaffold teams with repository-backed teams
-   - Priority: P1
-   - Type: Backend
-   - Goal: Update bootstrap composition so the existing bootstrap `teams` section is derived from the shared team source instead of hard-coded scaffold data.
-   - Dependencies: Register team creation and listing routes in the Express app
-   - Expected output: `GET /api/bootstrap/` returns teams that remain consistent with the team listing endpoint after successful creation.
-
-6. Add focused backend tests for creation, persistence, and listing
-   - Priority: P0
-   - Type: Backend
-   - Goal: Extend the current `node:test` and `supertest` suite with OCTOFIT-7 coverage for invalid create requests, valid create requests, listing visibility, and bootstrap consistency if bootstrap is updated.
-   - Dependencies: Register team creation and listing routes in the Express app, Replace bootstrap scaffold teams with repository-backed teams
-   - Expected output: Passing tests that directly cover all OCTOFIT-7 acceptance criteria.
-
-7. Validate route isolation and test reset behavior
-   - Priority: P1
-   - Type: Backend
-   - Goal: Ensure the new in-memory team state can be reset between tests and does not leak across unrelated backend scenarios.
-   - Dependencies: Add focused backend tests for creation, persistence, and listing
-   - Expected output: Stable repeatable tests with explicit team-state reset hooks.
+   - Goal: Cover the empty state and populated response shape for `GET /api/teams/` and keep bootstrap consistency checks intact.
+   - Dependencies: Apply minimal backend code changes only if the route or mapped team shape diverges from the story
+   - Expected output: Passing tests that directly cover all OCTOFIT-8 acceptance criteria.
 
 ## Frontend Implementation Tasks
 Frontend stack: Static HTML, vanilla JavaScript, CSS, browser `fetch`, bootstrap-driven rendering.
 
-1. Verify that no new frontend creation flow is required for OCTOFIT-7
+1. Validate the current team rendering contract in `frontend/app.js`
    - Priority: P0
    - Type: Frontend
-   - Goal: Confirm that the story is satisfied by backend API delivery and that the current static frontend only needs compatibility with any updated bootstrap team data.
+   - Goal: Confirm that the existing teams panel consumes `name`, `memberCount`, and `focus`, and therefore remains compatible with the canonical team-list shape.
    - Dependencies: artifacts/requirements.md, artifacts/architecture.md
-   - Expected output: A documented decision to keep frontend scope limited unless a backend contract change forces UI updates.
+   - Expected output: Explicit evidence for unchanged frontend files or a minimal compatibility patch if the backend shape must change.
 
-2. Validate bootstrap team rendering against the new backend team source
+2. Keep frontend changes out of scope unless contract compatibility fails
    - Priority: P1
    - Type: Frontend
-   - Goal: Confirm the existing team list rendering in `frontend/app.js` still works when bootstrap teams come from the repository-backed backend source.
-   - Dependencies: Replace bootstrap scaffold teams with repository-backed teams
-   - Expected output: No frontend code changes or a small compatibility adjustment if the backend team shape changes.
-
-3. Apply minimal UI contract adjustments only if backend payload shape requires them
-   - Priority: P2
-   - Type: Frontend
-   - Goal: Keep the existing teams panel functional without introducing a new story surface.
-   - Dependencies: Validate bootstrap team rendering against the new backend team source
-   - Expected output: A narrow frontend patch only if required for payload compatibility.
+   - Goal: Avoid adding a new workflow or fetch path when the story only requires a usable response contract.
+   - Dependencies: Validate the current team rendering contract in `frontend/app.js`
+   - Expected output: Frontend files unchanged with supporting validation evidence, or a narrow fix if needed.
 
 ## Shared Integration And Verification Tasks
-1. Align the team record shape across create, list, and bootstrap flows
+1. Verify consistent team data across direct listing and bootstrap responses
    - Priority: P0
    - Type: Shared
-   - Goal: Keep the same team representation across the new endpoints and bootstrap payload so downstream consumers do not see divergent contracts.
-   - Dependencies: Implement the team service layer, Replace bootstrap scaffold teams with repository-backed teams
-   - Expected output: One consistent team record shape used across backend responses.
+   - Goal: Ensure the team array shape remains aligned wherever the client consumes it.
+   - Dependencies: Confirm the canonical team-list response contract
+   - Expected output: Matching team objects between `GET /api/teams/` and `GET /api/bootstrap/`.
 
-2. Run the focused backend test suite for the touched slices
+2. Run the focused backend test suite for the touched slice
    - Priority: P0
    - Type: Shared
-   - Goal: Execute the narrow automated checks that cover teams, bootstrap impact, and regression risk in adjacent routes.
-   - Dependencies: Add focused backend tests for creation, persistence, and listing
-   - Expected output: Passing `backend` tests for the OCTOFIT-7 slice.
+   - Goal: Execute the backend tests after the OCTOFIT-8 updates.
+   - Dependencies: Add focused backend tests for the client-consumable team-list contract
+   - Expected output: Passing backend test evidence for the team-listing scope.
 
-3. Perform end-to-end API verification of the acceptance path
+3. Refresh the HTML unit test evidence
    - Priority: P1
    - Type: Shared
-   - Goal: Verify that a valid `POST /api/teams/` request persists a team and that the created record appears in the listing capability and bootstrap data after creation.
-   - Dependencies: Run the focused backend test suite for the touched slices
-   - Expected output: Manual or scripted evidence that the end-to-end acceptance path works.
+   - Goal: Keep `artifacts/unit-test-report.html` synchronized with the latest local backend test execution when repository support exists.
+   - Dependencies: Run the focused backend test suite for the touched slice
+   - Expected output: Updated HTML summary of local test evidence.
 
-4. Confirm rollout readiness for the OCTOFIT-7 scope
+4. Confirm review and PR readiness
    - Priority: P1
    - Type: Shared
-   - Goal: Check that the implementation remains scoped to the story, preserves current route behavior, and introduces no unnecessary frontend surface area.
-   - Dependencies: Perform end-to-end API verification of the acceptance path
-   - Expected output: Review-ready OCTOFIT-7 delivery evidence.
+   - Goal: Ensure the implementation stays scoped, documents frontend impact explicitly, and captures any remaining limitations.
+   - Dependencies: Refresh the HTML unit test evidence
+   - Expected output: Review-ready OCTOFIT-8 delivery evidence.
 
 ## Blocked Tasks
-1. Persistent storage beyond process lifetime
+1. Process-independent team durability
    - Area: Backend
    - Blocked: Yes
-   - Reason: The workspace has no database or durable persistence layer provisioned, and the current project pattern is in-memory storage only.
+   - Reason: The repository still uses in-memory storage only.
 
-2. Frontend team-creation experience
+2. New frontend team-selection or team-join workflow
    - Area: Frontend
    - Blocked: No
-   - Reason: Not required by OCTOFIT-7 and should not begin unless a new story expands scope.
-
-3. Advanced team business rules such as uniqueness, ownership, or member limits
-   - Area: Shared
-   - Blocked: Partially
-   - Reason: The requirements and architecture do not define these rules, so implementation should stay minimal until product guidance exists.
+   - Reason: Not required by OCTOFIT-8 and intentionally excluded from scope.
 
 ## Open Questions
-1. What is the canonical team listing route for this repository: a new `GET /api/teams/` endpoint or another existing convention?
-2. What fields must a valid team creation request include beyond the team name?
-3. Should bootstrap continue exposing the same team card shape currently used by the frontend, or should the shared team contract be adjusted first?
-4. Is in-memory team persistence acceptable for OCTOFIT-7 review, given that created teams only need to remain available after the create request completes?
+1. Should a future story make the frontend call `GET /api/teams/` directly rather than receiving teams through bootstrap?
+2. Does a future client need explicit team-list ordering semantics?
 
-## Backend Planning Status
-Ready for implementation.
+## Implementation Readiness Notes
+Backend: Ready for focused implementation and contract verification.
 
-## Frontend Planning Status
-No new feature work required by default; compatibility validation only unless the backend payload contract changes.
+Frontend: Validation required even if no frontend files change because the story concerns client-consumed team data.
