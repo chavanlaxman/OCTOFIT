@@ -6,7 +6,7 @@ OCTOFIT-10 Join an existing team
 ## Branch Context
 - Source branch: `feature/OCTOFIT-10-join-existing-team`
 - Target branch: `main`
-- Latest pushed commit: `9c852d7`
+- Latest pushed commit: `f2c3aa1`
 
 ## Summary
 Implements the OCTOFIT-10 backend join flow so a registered student can join an existing team through `POST /api/teams/:teamId/join/`. The change persists team membership in the in-memory account slice, increments the team's member count in the shared team repository, and keeps `GET /api/teams/` plus `GET /api/bootstrap/` synchronized with the joined state.
