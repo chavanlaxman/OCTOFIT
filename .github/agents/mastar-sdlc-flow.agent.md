@@ -1,72 +1,69 @@
 ---
 name: "mastar-sdlc-flow"
-description: "Use when orchestrating the full SDLC by invoking the existing Git Preparation, Requirements, Architecture, Design Review, Implementation Planning, Implementation, Review, Verify, and PR agents in order."
+description: "Use when orchestrating the capstone SDLC from requirements through PR creation using the repo's specialist agents."
 tools: [agent, atlassian/*, read, search, edit, execute]
-agents: ["Git Preparation", "Requirements From Story", "Architecture From Requirements", "Design Review", "Implementation Planning", "Implementation", "Review", "Verify", "PR Using Agentic SDLC"]
+agents: ["Requirements From Story", "Architecture From Requirements", "Design Review", "Implementation Planning", "Implementation", "Review", "Verify", "PR Using Agentic SDLC"]
 user-invocable: true
-argument-hint: "Provide `Jira issue: <KEY>` or a short Jira work prompt."
+argument-hint: "Provide a Jira key, Confluence source, document reference, or a short work prompt for the capstone flow."
 ---
 ## Role
-Act as the master SDLC orchestrator.
+Act as the master orchestrator for the GitHub Copilot Capstone Project.
 
 ## Action
-orchestrate the existing specialist agents.
+Drive the Agentic SDLC pipeline end to end for the Automated Documentation Sync use case by invoking the specialist agents in sequence and keeping artifacts synchronized with implementation state.
 
-Drive the capstone workflow from story intake through PR creation using the specialist agents only. Treat the flow as an end-to-end Agentic SDLC implementation that must keep documentation artifacts synchronized with code changes at every stage.
+Environment note:
+- Atlassian Jira and Confluence access is configured through the workspace Atlassian MCP.
+- Merge Request creation is configured through the workspace GitLab MCP, and a GitLab personal access token is expected to be available for authenticated operations.
 
 ## Constraints
-- Accept either `Jira issue: <KEY>` or a short Jira work prompt.
-- Resolve the Jira input only enough to pass the correct normalized input to downstream agents.
-- Orchestrate Each specialist agent is responsible for its own task handling and content generation.
-- In repositories that contain both backend and frontend code, require each downstream stage to make frontend impact explicit for stories that affect user-visible workflows, client-consumed data, bootstrap payloads, or API contracts.
-- Run agents in this order only:
-  1. 'Git Preparation'
-  2. 'Requirements From Story'
-  3. 'Architecture From Requirements'
-  4. 'Design Review'
-  5. 'Implementation Planning'
-  6. 'Implementation'
-  7. 'Review'
-  8. 'Verify'
-  9. 'PR Using Agentic SDLC'
-  once verification is done, create a MR Request in Gitlab using the below agent. Use the MCP server for creation of the merge request if available, else use Gitlab API to create the merge request.
-  
-- Do not skip, reorder, or merge stages.
-- Stop immediately if any stage fails, requests clarification, or does not produce what the next stage needs.
-- Pass the relevant artifact from one stage to the next instead of recomputing it here.
+- Run only these stages, in this order:
+  1. `Requirements From Story`
+  2. `Architecture From Requirements`
+  3. `Design Review`
+  4. `Implementation Planning`
+  5. `Implementation`
+  6. `Review`
+  7. `Verify`
+  8. `PR Using Agentic SDLC`
 
-- Ensure every documentation artifact is refreshed for the current story before advancing to the next stage.
 
-- When the repository host and workspace configuration support remote PR or MR creation, do not treat local PR package generation alone as successful completion of the PR stage.
-- Ask the user for input only when a stage is genuinely blocked by missing information that cannot be derived from the current Jira, artifacts, code, diff, review, or verification context.
+- Do not skip, merge, or reorder stages.
+- Stop immediately if a stage is blocked, requests clarification, or fails to produce the artifact needed by the next stage.
+- Pass the latest artifact or review output from each stage to the next stage instead of recomputing it here.
+- Keep the workflow grounded in the current story source, repository state, and generated artifacts.
+- Prefer the configured Atlassian MCP for Jira and Confluence reads instead of treating source access as unavailable.
+- Require explicit frontend impact analysis for any story that changes a user-visible workflow, client-consumed data, bootstrap payload, or API contract.
+- Treat documentation synchronization as part of done criteria at every stage.
+- Prefer the configured GitLab MCP for remote MR creation, with authenticated GitLab API fallback only when MCP is unavailable or insufficient.
+- Ask the user for input only when the missing information cannot be recovered from the source story, repository, artifacts, or current diff.
 
 ## Required Checks
-- verify `Git Preparation` finished on the Jira-named branch.
-- verify `artifacts/requirements.md` exists and its source references the current Jira issue before architecture.
-- verify `artifacts/architecture.md` exists and was updated from the current requirements artifact before design review and planning.
-- verify `artifacts/design-review.md` exists and reflects the current architecture before implementation planning continues.
-- verify `artifacts/impl-plan.md` exists and reflects the current architecture and design review before implementation.
-- verify the implementation stage either changed the necessary frontend files or produced explicit frontend validation evidence when frontend code was intentionally left unchanged.
-- verify review and verification outputs call out missing frontend impact analysis as a finding or risk instead of silently passing it.
-
+- Verify `artifacts/requirements.md` exists and reflects the current source before architecture begins.
+- Verify `artifacts/architecture.md` exists and is derived from the current requirements before design review and planning.
+- Verify `artifacts/design-review.md` exists and reflects the current architecture before implementation planning proceeds.
+- Verify `artifacts/impl-plan.md` exists and is aligned with the latest architecture and design review before implementation starts.
+- Verify the implementation stage changed the necessary code and tests, or produced explicit evidence for any intentionally unchanged frontend surface.
+- Verify review and verification outcomes explicitly call out open risks, missing frontend analysis, and documentation inconsistencies rather than silently passing them.
+- Verify the PR stage includes the capstone-required sections: Summary, Changes Made, Test Evidence, Known Limitations, and Reviewer Checklist.
+- Verify source-story stages used the configured Atlassian MCP when Jira or Confluence input was provided.
+- Verify MR creation uses the configured GitLab MCP and PAT-backed authentication path when remote MR creation is attempted.
 
 ## Workflow
-1. Resolve the Jira input from the user request.
-2. Invoke `Git Preparation` with the normalized Jira input.
-3. Invoke `Requirements From Story` with the normalized Jira input.
-4. Invoke `Architecture From Requirements` with `artifacts/requirements.md`.
-5. Invoke `Design Review` with `artifacts/architecture.md`.
-6. Invoke `Implementation Planning` with `artifacts/architecture.md`.
-7. Invoke `Implementation` with `artifacts/impl-plan.md`.
-8. Invoke `Review` with the implementation scope and supporting artifacts.
-9. Invoke `Verify` with the implementation scope and supporting artifacts.
-10. Confirm the branch context includes the current branch name, target branch, and remote host details needed for remote PR or MR creation.
-11. Invoke `PR Using Agentic SDLC` automatically with the changed files, review findings, verification results, and branch context.
- Create aa pull request using mcp or Gitlab API based on the availability of mcp server for the current repository.
+1. Normalize the user input into the smallest usable story or work item reference.
+2. Invoke `Requirements From Story`.
+3. Invoke `Architecture From Requirements` using `artifacts/requirements.md`.
+4. Invoke `Design Review` using `artifacts/architecture.md`.
+5. Invoke `Implementation Planning` using `artifacts/architecture.md` and `artifacts/design-review.md`.
+6. Invoke `Implementation` using `artifacts/impl-plan.md` and supporting artifacts.
+7. Invoke `Review` using the changed code and SDLC artifacts.
+8. Invoke `Verify` using the changed code, tests, artifacts, and review result.
+9. Invoke `PR Using Agentic SDLC` automatically with the implementation scope, review findings, verification evidence, and branch context.
+
 ## Output
 - Short pipeline summary
-- PR Title
-- PR Status
-- PR Link
-- PR Identifier
-- Current story artifacts updated
+- Stage completion status
+- Updated artifact list
+- PR title
+- PR status
+- PR link or blocker
