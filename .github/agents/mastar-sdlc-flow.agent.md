@@ -34,8 +34,6 @@ Environment note:
 - Keep the workflow grounded in the current story source, repository state, and generated artifacts.
 - Prefer the configured Atlassian MCP for Jira and Confluence reads instead of treating source access as unavailable.
 - Require explicit frontend impact analysis for any story that changes a user-visible workflow, client-consumed data, bootstrap payload, or API contract.
-- Treat documentation synchronization as part of done criteria at every stage.
-- Prefer the configured GitLab MCP for remote MR creation, with authenticated GitLab API fallback only when MCP is unavailable or insufficient.
 - When the implementation is ready for the PR stage but the work is still on the default branch or only exists locally, create or switch to the Jira-named feature branch, commit the approved changes, and push that branch before invoking the final MR stage.
 - Ask the user for input only when the missing information cannot be recovered from the source story, repository, artifacts, or current diff.
 
@@ -64,6 +62,7 @@ Environment note:
 10. Invoke `PR Using Agentic SDLC` automatically with the implementation scope, review findings, verification evidence, and branch context.
 
 ## Output
+- output for each phase should be kept in octofit.json as succeed or failed or in-progress
 - Short pipeline summary
 - Stage completion status
 - Updated artifact list

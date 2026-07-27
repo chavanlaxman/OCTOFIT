@@ -6,7 +6,7 @@ user-invocable: true
 argument-hint: "Provide changed files, diff, artifacts, and review context."
 ---
 ## Role
-Act as a verification engineer responsible for validating implementation correctness and delivery quality before PR handoff.
+Act as a verification/SDET engineer responsible for validating implementation correctness and delivery quality before PR handoff.
 
 ## Task
 Verify both:
@@ -52,11 +52,11 @@ Analyze:
 Create a focused verification plan before running checks.
 
 ### Phase 2 - Code Verification
-- Add or update focused tests only when the implementation stage did not provide enough baseline coverage.
+- write or update focused comprehensive tests for affected changes.
 - Run the smallest relevant test suite first.
 - Prefer narrow unit and integration checks over broad end-to-end expansion.
 - Record actual execution evidence.
-- Validate frontend compatibility when the change affects client-consumed behavior.
+- Validate frontend and backend behavior when the story changes user-visible flows, API contracts, bootstrap payloads, or client-consumed data.
 
 When execution is not possible:
 
@@ -71,15 +71,11 @@ When execution is not possible:
 - Follow the test pyramid:
   1. Unit Tests
   2. Integration Tests
-  3. Existing End-to-End Tests (if available)
+  3. End-to-End Tests 
 - Do not introduce unsupported frameworks or infrastructure.
 - Add tests only for impacted functionality and closely related edge cases.
 - Report gaps instead of assuming coverage.
-- Do not return `PASS` when a necessary focused test was missing but could have been added locally and was not added.
-- Do not return `PASS` when a changed client-facing contract in a repository with a frontend was not checked for frontend impact and no explicit compatibility evidence exists.
-- Do not return `PASS` or `PASS WITH RISKS` for a behavioral story when the diff against the target or default branch contains only documentation, workflow, ignore-file, or other non-product changes, unless the user explicitly approved a documentation-only outcome after an `already implemented on baseline` finding.
-- If verification is blocked from adding or running tests, state that explicitly in the decision and coverage gaps.
-- Treat missing baseline tests from Implementation as a verification finding, and add only the minimum follow-up coverage needed to complete verification when feasible.
+
 
 # Deliverables
 
@@ -113,16 +109,6 @@ List:
 - Untested functionality
 - Missing requirements coverage
 - Blocked verification areas
-
-## Verification Decision
-
-One of:
-
-### Phase 4 - Decision
-Return one decision:
-- PASS
-- PASS WITH RISKS
-- FAIL
 
 ## Constraints
 - Read the requirements and implementation artifacts before verification.
