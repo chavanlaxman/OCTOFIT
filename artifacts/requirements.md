@@ -1,45 +1,45 @@
-# Requirements for OCTOFIT-7
+# Requirements for OCTOFIT-8
 
 ## Title
-Create fitness teams
+List available teams
 
 ## Source
-- Jira issue: OCTOFIT-7
-- Browse link: https://laxmanchavan2080.atlassian.net/browse/OCTOFIT-7
-- Jira summary: Create fitness teams
+- Jira issue: OCTOFIT-8
+- Browse link: https://laxmanchavan2080.atlassian.net/browse/OCTOFIT-8
+- Jira summary: List available teams
+- Jira status: To Do
+- Jira issue type: Story
 - Jira description:
-	User Story: As a student, I want to create a team, so that I can participate in group fitness competition.
-	Acceptance Criteria:
-	1. The system supports POST /api/teams/ for team creation.
-	2. A valid team creation request persists a new team record.
-	3. The created team is available through the team listing endpoint.
+  User Story: As a student, I want to view available teams, so that I can choose a team to join.
+  Acceptance Criteria:
+  1. The system supports GET /api/teams/.
+  2. The endpoint returns the available team records for display.
+  3. The response format is usable by the React frontend.
 
 ## Story Summary
-The system must let a student create a fitness team through a backend API, persist the new team record, and make the created team available through the application's team listing capability.
+The system must provide a team listing capability that allows a student to retrieve available teams through `GET /api/teams/` so the frontend can display those teams for selection during the join-team flow.
 
 ## Assumptions
-- The story applies to the existing OctoFit backend API in this workspace.
-- The story defines the creation route as `POST /api/teams/` and does not specify a frontend flow.
-- The story requires a team listing capability but does not specify the listing route or response shape.
-- The story does not define the team request schema, validation rules, or storage technology, so those details remain implementation decisions unless constrained elsewhere.
+- The story applies to the existing OctoFit application in this workspace, including the backend API and the React-based frontend consumer referenced by the Jira acceptance criteria.
+- "Available teams" refers to the set of team records that are eligible to be shown to a student for team selection, but the Jira story does not define any filtering beyond returning team records for display.
+- The story does not define pagination, sorting, filtering, authentication, or team field-level response requirements, so those remain outside the scope of these requirements unless constrained elsewhere.
+- The story requires the response to be usable by the React frontend, but it does not prescribe a specific JSON schema beyond being consumable for display.
 
 ## Technical Constraints
-- The team creation capability must be exposed through `POST /api/teams/`.
-- The team creation interface must use an HTTP request and response contract compatible with the current JSON API style used by the backend.
-- The created team must be retrievable through a team listing endpoint, but the exact listing route is not specified by the source story.
+- The team listing capability must be exposed through `GET /api/teams/`.
+- The response must provide team data in a format consumable by the React frontend used in this workspace.
+- The implementation must retrieve team records from the application's team data source rather than relying on hard-coded display data.
 
 ## Functional Requirements
-1. The system shall support team creation through `POST /api/teams/`.
-2. The system shall accept a valid team creation request and create a new team record from that request.
-3. The system shall persist each successfully created team record so it remains available after the create request completes.
-4. The system shall make each successfully created team available through the application's team listing endpoint.
-5. The system shall support the team creation capability for the student user scenario described in the source story.
+1. The system shall support retrieval of available teams through `GET /api/teams/`.
+2. The system shall return the available team records in response to a valid request to `GET /api/teams/`.
+3. The system shall provide the returned team records in a response structure that can be used by the React frontend to display the available teams.
+4. The system shall support the student user goal of viewing available teams so that a team can be chosen for joining.
 
 ## Non-Functional Requirements
-1. Reliability: The system shall persist a valid team creation request before reporting team creation success.
-2. Reliability: The team listing capability shall reflect newly created teams after successful creation.
-3. Maintainability: The implementation shall preserve a clear separation between the team creation API surface and the underlying team persistence logic.
-4. Usability: The team creation capability shall support the student goal stated in the story without requiring manual out-of-band data setup after a successful request.
+1. Usability: The `GET /api/teams/` response shall be structured so the React frontend can consume it without manual transformation outside normal application handling.
+2. Reliability: The team listing capability shall return the current available team records from the application's underlying team data source at the time of the request.
+3. Maintainability: The implementation shall preserve a clear separation between the team listing API surface and the underlying team retrieval logic.
 
 ## Questions asked and answers received
-- No clarifying questions were required. The requirements were drafted directly from Jira story OCTOFIT-7 and its acceptance criteria.
+- No clarifying questions were required. The requirements were drafted directly from Jira story OCTOFIT-8 and its acceptance criteria retrieved through the configured Atlassian MCP server.
