@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OCTOFIT-8 Unit Test Report</title>
+    <title>OCTOFIT-10 Unit Test Report</title>
     <style>
       body {
         font-family: Segoe UI, Arial, sans-serif;
@@ -65,17 +65,17 @@
   </head>
   <body>
     <main>
-      <h1>OCTOFIT-8 Unit Test Report</h1>
-      <p>Generated from the local backend test execution for the team-listing verification slice.</p>
+      <h1>OCTOFIT-10 Unit Test Report</h1>
+      <p>Generated from the local backend test execution for the team-join verification slice.</p>
 
       <section class="summary" aria-label="Test summary">
         <div class="card">
           <div class="label">Tests</div>
-          <div class="value">17</div>
+          <div class="value">21</div>
         </div>
         <div class="card">
           <div class="label">Passed</div>
-          <div class="value">17</div>
+          <div class="value">21</div>
         </div>
         <div class="card">
           <div class="label">Failed</div>
@@ -83,30 +83,31 @@
         </div>
         <div class="card">
           <div class="label">Duration</div>
-          <div class="value">408.44 ms</div>
+          <div class="value">379.71 ms</div>
         </div>
       </section>
 
       <section>
         <h2>Executed Command</h2>
-        <p><code>npm.cmd --prefix backend test</code></p>
+        <p><code>Set-Location backend; npm.cmd test</code></p>
       </section>
 
       <section>
         <h2>Covered Checks</h2>
         <ul>
           <li>Activity contract, validation, persistence, and leaderboard behavior</li>
-          <li>Registration contract, account creation, and duplicate-email handling</li>
+          <li>Registration contract, account creation, duplicate-email handling, and joined-account state exposure</li>
           <li>Team creation validation and persistence behavior retained from the existing slice</li>
           <li>Canonical `GET /api/teams/` listing behavior for empty and populated states</li>
-          <li>Shared team-shape consistency between `GET /api/teams/` and `GET /api/bootstrap/`</li>
+          <li>`POST /api/teams/:teamId/join/` success, validation, unknown-team handling, unknown-account handling, and duplicate-membership rejection</li>
+          <li>Shared post-join consistency between `GET /api/teams/` and `GET /api/bootstrap/`</li>
           <li>Bootstrap route availability and client-consumable dashboard shape</li>
         </ul>
       </section>
 
       <section>
         <h2>Additional Verification</h2>
-        <p><code>node --check frontend/app.js</code> completed without diagnostics, and the unchanged frontend team renderer still consumes `name`, `memberCount`, and `focus` from the shared bootstrap team shape.</p>
+        <p><code>node --check frontend/app.js</code> completed without diagnostics from the workspace root, and the unchanged frontend renderer still consumes `name`, `memberCount`, and `focus` while tolerating additive bootstrap user team fields.</p>
       </section>
     </main>
   </body>

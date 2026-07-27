@@ -1,10 +1,10 @@
 # OctoFit Capstone Scaffold
 
-This repository contains the evolving OctoFit capstone scaffold used to deliver Jira-driven stories through an Agentic SDLC workflow. It currently includes the earlier registration and activity logging flows, the bootstrap-driven entry experience, and the OCTOFIT-7 team creation and listing backend slice.
+This repository contains the evolving OctoFit capstone scaffold used to deliver Jira-driven stories through an Agentic SDLC workflow. It currently includes the earlier registration and activity logging flows, the bootstrap-driven entry experience, and the OCTOFIT-10 team creation, listing, and join backend slice.
 
 ## Project Structure
 
-- `backend/`: Express API, registration flow, activity logging flow, bootstrap aggregation, team creation and listing services, and automated tests.
+- `backend/`: Express API, registration flow, activity logging flow, bootstrap aggregation, team creation, listing, and join services, and automated tests.
 - `frontend/`: Static OctoFit UI that renders bootstrap data, activity forms, leaderboard views, and team data.
 - `artifacts/`: Current story requirements, architecture, design review, and implementation planning documents.
 
@@ -34,6 +34,7 @@ npm.cmd test
 - Exposes the registration endpoint at `/api/users/register/`.
 - Validates and sanitizes registration input before persistence.
 - Persists valid user accounts in memory for downstream consumers.
+- Reflects joined team association in downstream account data after a successful team join.
 
 ## Current Activity Logging Behavior
 
@@ -47,14 +48,17 @@ npm.cmd test
 
 - Exposes the team creation endpoint at `/api/teams/`.
 - Exposes the canonical team listing endpoint at `/api/teams/`.
+- Exposes the team join endpoint at `/api/teams/:teamId/join/`.
 - Validates and sanitizes team input before persistence.
 - Persists created teams in memory through a dedicated repository boundary and reuses that same source for listing and bootstrap responses.
+- Associates registered students to existing teams and reflects successful joins in team member counts and bootstrap data.
 
 ## Current Bootstrap Behavior
 
 - Exposes the bootstrap endpoint at `/api/bootstrap/`.
 - Aggregates users, teams, activities, challenges, leaderboard data, and recommendations into a single response.
 - Reuses the same persisted team source for both team listing and bootstrap rendering.
+- Includes additive user team-association fields when a registered student has joined a team.
 
 ## Retained Scaffold Behavior
 

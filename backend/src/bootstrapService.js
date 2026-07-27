@@ -52,12 +52,21 @@ function buildRecommendations(activities, leaderboard) {
 }
 
 function buildBootstrapUsers(users) {
-  return users.map((user) => ({
-    id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    role: user.role,
-  }));
+  return users.map((user) => {
+    const bootstrapUser = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+    };
+
+    if (user.teamId != null) {
+      bootstrapUser.teamId = user.teamId;
+      bootstrapUser.teamName = user.teamName;
+    }
+
+    return bootstrapUser;
+  });
 }
 
 function createBootstrapPayload() {

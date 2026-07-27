@@ -9,7 +9,7 @@ const {
 const { createBootstrapPayload } = require('./bootstrapService');
 const { registrationContract } = require('./registrationContract');
 const { registerStudent } = require('./registrationService');
-const { createTeam, listTeams } = require('./teamService');
+const { createTeam, joinTeam, listTeams } = require('./teamService');
 
 function createApp() {
   const app = express();
@@ -73,6 +73,11 @@ function createApp() {
 
   app.post('/api/teams/', (request, response) => {
     const result = createTeam(request.body || {});
+    response.status(result.statusCode).json(result.body);
+  });
+
+  app.post('/api/teams/:teamId/join/', (request, response) => {
+    const result = joinTeam(request.params.teamId, request.body || {});
     response.status(result.statusCode).json(result.body);
   });
 

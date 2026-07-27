@@ -414,3 +414,216 @@ test('uses the same in-memory team source for listing and bootstrap responses', 
   ]);
   assert.equal(bootstrapResponse.body.dashboard.totalTeams, 2);
 });
+
+test('joins a registered student to an existing team and reflects the result in later team data', async () => {
+  const app = createApp();
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'Relay Rockets',
+      memberCount: 4,
+      focus: 'Relay practice and recovery runs',
+    })
+    .expect(201);
+
+  await request(app)
+    .post('/api/users/register/')
+    .send({
+      firstName: 'Taylor',
+      lastName: 'Student',
+      email: 'taylor.student@example.com',
+      password: 'Password9',
+      consentAccepted: true,
+    })
+    .expect(201);
+
+  const joinResponse = await request(app)
+    .post('/api/teams/1/join/')
+    .send({
+      accountId: 1,
+    })
+    .expect(200);
+
+  assert.equal(joinResponse.body.status, 'success');
+  assert.deepEqual(joinResponse.body.account, {
+    id: 1,
+    firstName: 'Taylor',
+    lastName: 'Student',
+    email: 'taylor.student@example.com',
+    role: 'student',
+    teamId: 1,
+    teamName: 'Relay Rockets',
+  });
+  assert.deepEqual(joinResponse.body.team, {
+    id: 1,
+    name: 'Relay Rockets',
+    memberCount: 5,
+    focus: 'Relay practice and recovery runs',
+  });
+
+  const teamListResponse = await request(app)
+    .get('/api/teams/')
+    .expect(200);
+
+  assert.deepEqual(teamListResponse.body.teams[0], {
+    id: 1,
+    name: 'Relay Rockets',
+    memberCount: 5,
+    focus: 'Relay practice and recovery runs',
+  });
+
+  const bootstrapResponse = await request(app)
+    .get('/api/bootstrap/')
+    .expect(200);
+
+  assert.deepEqual(bootstrapResponse.body.users[0], {
+    id: 1,
+    firstName: 'Taylor',
+    lastName: 'Student',
+    role: 'student',
+    teamId: 1,
+    teamName: 'Relay Rockets',
+  });
+  assert.deepEqual(bootstrapResponse.body.teams[0], {
+    id: 1,
+    name: 'Relay Rockets',
+    memberCount: 5,
+    focus: 'Relay practice and recovery runs',
+  });
+});
+
+test('rejects join requests with missing account ids or unknown teams', async () => {
+  const app = createApp();
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'North Stars',
+      memberCount: 8,
+      focus: 'Morning cardio sessions',
+    })
+    .expect(201);
+
+  const missingAccountIdResponse = await request(app)
+    .post('/api/teams/1/join/')
+    .send({})
+    .expect(400);
+
+  assert.equal(missingAccountIdResponse.body.status, 'error');
+  assert.deepEqual(missingAccountIdResponse.body.errors.accountId, [
+    'Account id must be a whole number greater than 0.',
+  ]);
+
+  await request(app)
+    .post('/api/users/register/')
+    .send({
+      firstName: 'Jordan',
+      lastName: 'Student',
+      email: 'jordan.student@example.com',
+      password: 'Password9',
+      consentAccepted: true,
+    })
+    .expect(201);
+
+  const unknownTeamResponse = await request(app)
+    .post('/api/teams/999/join/')
+    .send({
+      accountId: 1,
+    })
+    .expect(404);
+
+  assert.equal(unknownTeamResponse.body.status, 'error');
+  assert.deepEqual(unknownTeamResponse.body.errors.teamId, [
+    'No team exists for the requested id.',
+  ]);
+});
+
+test('rejects join requests for unknown account ids', async () => {
+  const app = createApp();
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'North Stars',
+      memberCount: 8,
+      focus: 'Morning cardio sessions',
+    })
+    .expect(201);
+
+  const unknownAccountResponse = await request(app)
+    .post('/api/teams/1/join/')
+    .send({
+      accountId: 999,
+    })
+    .expect(404);
+
+  assert.equal(unknownAccountResponse.body.status, 'error');
+  assert.deepEqual(unknownAccountResponse.body.errors.accountId, [
+    'No student account exists for the requested id.',
+  ]);
+});
+
+test('rejects duplicate joins and joining a second team after membership already exists', async () => {
+  const app = createApp();
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'Pace Setters',
+      memberCount: 7,
+      focus: 'Weekly endurance sessions',
+    })
+    .expect(201);
+
+  await request(app)
+    .post('/api/teams/')
+    .send({
+      name: 'Core Crew',
+      memberCount: 3,
+      focus: 'Strength circuits',
+    })
+    .expect(201);
+
+  await request(app)
+    .post('/api/users/register/')
+    .send({
+      firstName: 'Casey',
+      lastName: 'Student',
+      email: 'casey.student@example.com',
+      password: 'Password9',
+      consentAccepted: true,
+    })
+    .expect(201);
+
+  await request(app)
+    .post('/api/teams/1/join/')
+    .send({
+      accountId: 1,
+    })
+    .expect(200);
+
+  const duplicateJoinResponse = await request(app)
+    .post('/api/teams/1/join/')
+    .send({
+      accountId: 1,
+    })
+    .expect(409);
+
+  assert.equal(duplicateJoinResponse.body.status, 'error');
+  assert.deepEqual(duplicateJoinResponse.body.errors.accountId, [
+    'Student is already a member of this team.',
+  ]);
+
+  const secondTeamJoinResponse = await request(app)
+    .post('/api/teams/2/join/')
+    .send({
+      accountId: 1,
+    })
+    .expect(409);
+
+  assert.equal(secondTeamJoinResponse.body.status, 'error');
+  assert.deepEqual(secondTeamJoinResponse.body.errors.accountId, [
+    'Student already belongs to team Pace Setters.',
+  ]);
+});
