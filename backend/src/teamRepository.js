@@ -20,12 +20,28 @@ function createTeamRecord(teamInput) {
   return team;
 }
 
+function findTeamRecordById(teamId) {
+  return teams.find((team) => team.id === teamId) || null;
+}
+
+function incrementTeamMemberCount(teamId) {
+  const team = findTeamRecordById(teamId);
+  if (!team) {
+    return null;
+  }
+
+  team.memberCount += 1;
+  return team;
+}
+
 function listTeamRecords() {
   return teams.slice();
 }
 
 module.exports = {
   createTeamRecord,
+  findTeamRecordById,
+  incrementTeamMemberCount,
   listTeamRecords,
   resetTeams,
 };

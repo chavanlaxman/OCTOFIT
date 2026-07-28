@@ -1,11 +1,30 @@
 const { registrationContract } = require('./registrationContract');
 
 const accountsByEmail = new Map();
+const accountsById = new Map();
 let nextAccountId = 1;
 
 function resetAccounts() {
   accountsByEmail.clear();
+  accountsById.clear();
   nextAccountId = 1;
+}
+
+function mapAccount(account) {
+  const mappedAccount = {
+    id: account.id,
+    firstName: account.firstName,
+    lastName: account.lastName,
+    email: account.email,
+    role: account.role,
+  };
+
+  if (account.teamId != null) {
+    mappedAccount.teamId = account.teamId;
+    mappedAccount.teamName = account.teamName;
+  }
+
+  return mappedAccount;
 }
 
 function sanitizeText(value) {
@@ -110,23 +129,20 @@ function registerStudent(payload) {
     lastName: sanitized.lastName,
     email: sanitized.email,
     consentAccepted: sanitized.consentAccepted,
+    teamId: null,
+    teamName: '',
     createdAt: new Date().toISOString(),
   };
 
   nextAccountId += 1;
   accountsByEmail.set(account.email, account);
+  accountsById.set(account.id, account);
 
   return {
     statusCode: registrationContract.successStatus,
     body: {
       status: 'success',
-      account: {
-        id: account.id,
-        firstName: account.firstName,
-        lastName: account.lastName,
-        email: account.email,
-        role: account.role,
-      },
+      account: mapAccount(account),
       postRegistration: {
         action: registrationContract.postRegistrationAction,
         autoLogin: false,
@@ -135,18 +151,31 @@ function registerStudent(payload) {
   };
 }
 
+function getAccountById(accountId) {
+  return accountsById.get(accountId) || null;
+}
+
+function assignAccountToTeam(accountId, team) {
+  const account = getAccountById(accountId);
+  if (!account) {
+    return null;
+  }
+
+  account.teamId = team.id;
+  account.teamName = team.name;
+  return mapAccount(account);
+}
+
 function listAccounts() {
   return Array.from(accountsByEmail.values(), (account) => ({
-    id: account.id,
-    firstName: account.firstName,
-    lastName: account.lastName,
-    email: account.email,
-    role: account.role,
+    ...mapAccount(account),
     createdAt: account.createdAt,
   }));
 }
 
 module.exports = {
+  assignAccountToTeam,
+  getAccountById,
   listAccounts,
   registerStudent,
   resetAccounts,
