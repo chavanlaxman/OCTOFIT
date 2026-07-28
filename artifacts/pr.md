@@ -36,6 +36,9 @@ Implements the OCTOFIT-10 backend join flow so a registered student can join an 
 4. Verify the OCTOFIT-10 artifacts, README, and unit test report stay aligned with the delivered implementation.
 
 ## MR Status
-Remote merge request creation is blocked in this session because the workspace exposes GitLab only through MCP configuration, but no callable GitLab MCP tool is available to this agent. The GitLab PAT environment variable is present and the feature branch is pushed, so the prepared manual MR entry point is:
+Remote merge request creation was completed through the PAT-backed GitLab API fallback because no callable GitLab MCP tool was exposed to this agent session.
 
-https://git.epam.com/laxmanagwan_chavan/web_automation/-/merge_requests/new?merge_request%5Bsource_branch%5D=feature%2FOCTOFIT-10-join-existing-team
+- MR: `!11`
+- URL: https://git.epam.com/laxmanagwan_chavan/web_automation/-/merge_requests/11
+- Source branch: `feature/OCTOFIT-10-join-existing-team`
+- Target branch: `main`

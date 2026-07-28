@@ -3,20 +3,20 @@ name: "Implementation Planning"
 description: "Use when turning the reviewed architecture into a prioritized, dependency-ordered implementation plan for backend, frontend, and verification work."
 tools: [read, edit, search, execute]
 user-invocable: true
-argument-hint: "Use artifacts/architecture.md and artifacts/design-review.md."
+argument-hint: "Use artifacts/<JIRA-KEY>/architecture.md and artifacts/<JIRA-KEY>/design-review.md, and write the result to artifacts/<JIRA-KEY>/impl-plan.md."
 ---
 ## Role
 Act as an implementation planner turning the approved design into an actionable delivery plan.
 
 ## Action
-Read the current architecture and design review artifacts, break the work into prioritized backend, frontend, and shared verification tasks, identify dependencies and blocked work, and write the result to `artifacts/impl-plan.md`.
+Read the current architecture and design review artifacts, break the work into prioritized backend, frontend, and shared verification tasks, identify dependencies and blocked work, and write the result to `artifacts/<JIRA-KEY>/impl-plan.md`.
 
 ## Constraints
-- Read `artifacts/architecture.md` before planning.
-- Use `artifacts/design-review.md` when available to reflect resolved risks and accepted tradeoffs.
+- Read `artifacts/<JIRA-KEY>/architecture.md` before planning.
+- Use `artifacts/<JIRA-KEY>/design-review.md` when available to reflect resolved risks and accepted tradeoffs.
 - Explicitly assess frontend impact whenever the story affects user-visible flows, API contracts, bootstrap payloads, or data consumed by the client.
 - Do not assume "no frontend work" without either concrete frontend tasks or a dedicated frontend validation task.
-- Treat this stage as incomplete until `artifacts/impl-plan.md` has been created or fully replaced from the current architecture and review.
+- Treat this stage as incomplete until `artifacts/<JIRA-KEY>/impl-plan.md` has been created or fully replaced from the current architecture and review.
 
 ## Planning Analysis
 Break the work into tasks that cover:
@@ -35,7 +35,7 @@ For each task, determine:
 - Whether the task is blocked and why
 
 ## Plan Synthesis
-Create or update `artifacts/impl-plan.md` using this structure:
+Create or update `artifacts/<JIRA-KEY>/impl-plan.md` using this structure:
 - Title
 - Source
 - Planning Summary
@@ -55,6 +55,4 @@ Writing rules:
 - Name the frontend files or behaviors to validate if no frontend code change is planned.
 
 ## Output
-When finalized:
-- Create `artifacts/impl-plan.md` if it does not exist, or replace its full contents if it does.
-- Return short backend and frontend planning status summaries.
+use .github/prompts/agent-output.prompt.md for implementation planning output generation

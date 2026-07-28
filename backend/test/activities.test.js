@@ -191,7 +191,18 @@ test('returns bootstrap data for the app entry experience', async () => {
   assert.ok(Array.isArray(response.body.activities));
   assert.ok(Array.isArray(response.body.challenges));
   assert.ok(Array.isArray(response.body.leaderboard));
-  assert.ok(Array.isArray(response.body.recommendations));
+  assert.deepEqual(response.body.recommendations, [
+    {
+      id: 'rec-keep-streak',
+      title: 'Keep your streak going',
+      detail: 'Log another session this week to strengthen your consistency.',
+    },
+    {
+      id: 'rec-chase-leader',
+      title: 'Chase Taylor Student on the leaderboard',
+      detail: 'A new workout can shift the rankings quickly when totals are close.',
+    },
+  ]);
   assert.equal(response.body.users.length, 1);
   assert.deepEqual(response.body.users[0], {
     id: 1,
@@ -223,7 +234,18 @@ test('returns a stable empty bootstrap shape before any users or activities exis
   assert.ok(Array.isArray(response.body.challenges));
   assert.deepEqual(response.body.activities, []);
   assert.deepEqual(response.body.leaderboard, []);
-  assert.equal(response.body.recommendations.length, 2);
+  assert.deepEqual(response.body.recommendations, [
+    {
+      id: 'rec-log-first-activity',
+      title: 'Log your first activity',
+      detail: 'Start the OctoFit experience by adding a workout to unlock progress insights.',
+    },
+    {
+      id: 'rec-join-challenge',
+      title: 'Join a weekly challenge',
+      detail: 'Pick a challenge to build momentum and compare progress with your team.',
+    },
+  ]);
 });
 
 test('rejects invalid team creation requests', async () => {

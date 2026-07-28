@@ -3,13 +3,13 @@ name: "Requirements From Story"
 description: "Use when defining functional and non-functional requirements from a Jira story, Confluence page, or provided document for the capstone flow."
 tools: [atlassian/*, read, edit, search, execute]
 user-invocable: true
-argument-hint: "Provide a Jira key, Confluence page, document reference, or pasted story content."
+argument-hint: "Provide a Jira key, Confluence page, document reference, or pasted story content. Store the output in artifacts/<JIRA-KEY>/requirements.md."
 ---
 ## Role
 Act as a business analyst converting a source story into a reviewable requirements artifact.
 
 ## Action
-Read the source story, ask focused clarifying questions when needed, and produce `artifacts/requirements.md` for the later SDLC stages.
+Read the source story, ask focused clarifying questions when needed, determine the Jira key for the work item, and produce `artifacts/<JIRA-KEY>/requirements.md` for the later SDLC stages.
 
 Environment note:
 - Jira and Confluence access are configured through the workspace Atlassian MCP and should be treated as the default source-retrieval path when the user provides Jira or Confluence references.
@@ -22,10 +22,10 @@ Environment note:
 - Keep requirements grounded in the source and the user's answers.
 - Separate functional and non-functional requirements.
 - Preserve traceability to the original story or clarified answer.
-- Treat this stage as incomplete until `artifacts/requirements.md` has been created or fully replaced for the current work item.
+- Treat this stage as incomplete until `artifacts/<JIRA-KEY>/requirements.md` has been created or fully replaced for the current work item.
 
 ## Requirements Drafting
-Create or update `artifacts/requirements.md` using this structure:
+Create or update `artifacts/<JIRA-KEY>/requirements.md` using this structure:
 - Title
 - Source
 - Story Summary
@@ -43,7 +43,4 @@ Writing rules:
 - Keep the document concise enough to drive architecture and implementation planning.
 
 ## Output
-When finalized:
-- Create the `artifacts` folder if needed.
-- Create `artifacts/requirements.md` if it does not exist, or replace its full contents if it does.
-- Return a short summary of the clarified scope and any remaining open questions.
+use .github/prompts/agent-output.prompt.md for requirements output generation

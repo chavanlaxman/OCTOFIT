@@ -12,6 +12,11 @@ Act as the master orchestrator for the GitHub Copilot Capstone Project.
 ## Action
 Drive the Agentic SDLC pipeline end to end for the Automated Documentation Sync use case by invoking the specialist agents in sequence and keeping artifacts synchronized with implementation state.
 
+Artifact convention:
+- Normalize the Jira key once at the start of the flow.
+- Store every phase artifact under `artifacts/<JIRA-KEY>/`.
+- Use these exact phase files: `requirements.md`, `architecture.md`, `design-review.md`, `impl-plan.md`, `implementation.md`, `review.md`, `verify.md`, and `pr.md`.
+
 Environment note:
 - Atlassian Jira and Confluence access is configured through the workspace Atlassian MCP.
 - Merge Request creation is configured through the workspace GitLab MCP, and a GitLab personal access token is expected to be available for authenticated operations.
@@ -34,14 +39,15 @@ Environment note:
 - Keep the workflow grounded in the current story source, repository state, and generated artifacts.
 - Prefer the configured Atlassian MCP for Jira and Confluence reads instead of treating source access as unavailable.
 - Require explicit frontend impact analysis for any story that changes a user-visible workflow, client-consumed data, bootstrap payload, or API contract.
-- When the implementation is ready for the PR stage but the work is still on the default branch or only exists locally, create or switch to the Jira-named feature branch, commit the approved changes, and push that branch before invoking the final MR stage.
+- When the implementation is ready for the PR stage but the work is still on the default branch or only exists locally, pass that branch-preparation requirement into `PR Using Agentic SDLC`, which is responsible for creating or switching to the Jira-named feature branch, committing approved changes, pushing the branch, and opening the MR.
 - Ask the user for input only when the missing information cannot be recovered from the source story, repository, artifacts, or current diff.
 
 ## Required Checks
-- Verify `artifacts/requirements.md` exists and reflects the current source before architecture begins.
-- Verify `artifacts/architecture.md` exists and is derived from the current requirements before design review and planning.
-- Verify `artifacts/design-review.md` exists and reflects the current architecture before implementation planning proceeds.
-- Verify `artifacts/impl-plan.md` exists and is aligned with the latest architecture and design review before implementation starts.
+- Verify `artifacts/<JIRA-KEY>/requirements.md` exists and reflects the current source before architecture begins.
+- Verify `artifacts/<JIRA-KEY>/architecture.md` exists and is derived from the current requirements before design review and planning.
+- Verify `artifacts/<JIRA-KEY>/design-review.md` exists and reflects the current architecture before implementation planning proceeds.
+- Verify `artifacts/<JIRA-KEY>/impl-plan.md` exists and is aligned with the latest architecture and design review before implementation starts.
+- Verify `artifacts/<JIRA-KEY>/implementation.md`, `artifacts/<JIRA-KEY>/review.md`, `artifacts/<JIRA-KEY>/verify.md`, and `artifacts/<JIRA-KEY>/pr.md` are created by their respective stages.
 - Verify the implementation stage changed the necessary code and tests, or produced explicit evidence for any intentionally unchanged frontend surface.
 - Verify review and verification outcomes explicitly call out open risks, missing frontend analysis, and documentation inconsistencies rather than silently passing them.
 - Verify the PR stage includes the capstone-required sections: Summary, Changes Made, Test Evidence, Known Limitations, and Reviewer Checklist.
@@ -52,14 +58,13 @@ Environment note:
 ## Workflow
 1. Normalize the user input into the smallest usable story or work item reference.
 2. Invoke `Requirements From Story`.
-3. Invoke `Architecture From Requirements` using `artifacts/requirements.md`.
-4. Invoke `Design Review` using `artifacts/architecture.md`.
-5. Invoke `Implementation Planning` using `artifacts/architecture.md` and `artifacts/design-review.md`.
-6. Invoke `Implementation` using `artifacts/impl-plan.md` and supporting artifacts.
+3. Invoke `Architecture From Requirements` using `artifacts/<JIRA-KEY>/requirements.md`.
+4. Invoke `Design Review` using `artifacts/<JIRA-KEY>/architecture.md`.
+5. Invoke `Implementation Planning` using `artifacts/<JIRA-KEY>/architecture.md` and `artifacts/<JIRA-KEY>/design-review.md`.
+6. Invoke `Implementation` using `artifacts/<JIRA-KEY>/impl-plan.md` and supporting artifacts.
 7. Invoke `Review` using the changed code and SDLC artifacts.
 8. Invoke `Verify` using the changed code, tests, artifacts, and review result.
-9. Ensure the implementation-ready changes are on a pushed feature branch named for the Jira key, creating and pushing that branch if necessary.
-10. Invoke `PR Using Agentic SDLC` automatically with the implementation scope, review findings, verification evidence, and branch context.
+9. Invoke `PR Using Agentic SDLC` automatically with the implementation scope, review findings, verification evidence, and branch context so it can prepare the Jira-named branch, push it, and create the MR.
 
 ## Output
 - output for each phase should be kept in octofit.json as succeed or failed or in-progress
