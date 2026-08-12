@@ -1,12 +1,22 @@
+---
+name: verify-unit-test
+description: Enforce unit-test evidence whenever Implementation or Verify creates, updates, or reviews unit tests for a changed behavior. Use during implementation and verification phases for backend or frontend tests.
+---
+
+# Verify Unit Test
+
 ## Purpose
-Apply this hook whenever the Implementation or Verify agent creates, updates, or reviews unit tests for a changed behavior.
+
+Apply whenever the Implementation or Verify agent creates, updates, or reviews unit tests for a changed behavior.
 
 ## Scope
+
 - Use for backend and frontend unit tests.
 - Use when a behavioral change, contract change, regression fix, or focused edge-case fix is implemented.
 - Skip only when the change is documentation-only, configuration-only, or otherwise has no executable behavior to test. State that explicitly.
 
 ## Hook Instructions
+
 - Verify that each added or updated unit test maps to the changed behavior or a closely related regression risk.
 - Require at least one happy-path assertion for each newly introduced behavior unless the behavior is error-only.
 - Require the most relevant edge-case assertion when the change introduces branching, validation, fallback behavior, or error handling.
@@ -19,7 +29,9 @@ Apply this hook whenever the Implementation or Verify agent creates, updates, or
 - If a test fails because it reveals a product defect, fix the product code or the invalid expectation, then rerun the same focused test.
 
 ## Output Requirements
-When this hook applies, include:
+
+When this skill applies, include:
+
 - Tests Added Or Updated
 - Behavior Covered
 - Edge Cases Covered
@@ -28,6 +40,7 @@ When this hook applies, include:
 - Remaining Gaps
 
 ## Decision Rules
+
 - Do not claim PASS when necessary unit coverage for the changed behavior is missing and could reasonably have been added.
 - Do not claim PASS when tests were written but not executed unless execution was genuinely blocked and the blocker is stated.
-- For documentation-only or configuration-only changes, state that no unit test hook action was required.
+- For documentation-only or configuration-only changes, state that no unit test action was required.

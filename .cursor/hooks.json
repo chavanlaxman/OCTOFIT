@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      {
+        "type": "prompt",
+        "prompt": "If this agent turn claimed Implementation or Verify completion, or added/updated unit tests, enforce .cursor/skills/verify-unit-test/SKILL.md. Require Tests Added Or Updated, Behavior Covered, Edge Cases Covered, Command Run, Execution Result, and Remaining Gaps when applicable. If required evidence is missing and the change was testable, follow up once to collect it before finishing. If documentation-only, no unit-test follow-up is needed. Hook input: $ARGUMENTS",
+        "loop_limit": 1,
+        "timeout": 30
+      }
+    ]
+  }
+}

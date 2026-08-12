@@ -1,0 +1,13 @@
+---
+description: Artifact conventions for SDLC phase markdown under artifacts/
+globs: artifacts/**/*.md
+alwaysApply: false
+---
+
+# Artifact files
+
+- One Jira key per folder: `artifacts/<JIRA-KEY>/`
+- Replace full file contents when regenerating a phase
+- Keep Jira key traceability in Title/Source sections
+- Do not invent facts absent from story, user answers, or prior phase artifacts
+- Use skill `agent-output` for phase file generation rules

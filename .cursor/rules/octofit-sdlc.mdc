@@ -1,0 +1,15 @@
+---
+description: OCTOFIT Cursor SDLC — check octofit.json and use .cursor agents/skills
+alwaysApply: true
+---
+
+# OCTOFIT SDLC (Cursor)
+
+- This project uses **Cursor agents/skills/hooks**.
+- Before a new story: read `octofit.json`. Start new work only if prior stages are `succeed`. If any stage is `failed` or `in-progress`, resume via `@master-sdlc-flow`.
+- New story entrypoint: `@master-sdlc-flow`.
+- Store phase outputs under `artifacts/<JIRA-KEY>/` with exact names: `requirements.md`, `architecture.md`, `design-review.md`, `impl-plan.md`, `implementation.md`, `review.md`, `verify.md`, `pr.md`.
+- Update `octofit.json` stage status after each phase (`succeed` | `failed` | `in-progress`).
+- Prefer Atlassian MCP for Jira/Confluence; prefer GitHub MCP for branch/commit/PR.
+- When writing unit tests (implementation or verify), follow skill `verify-unit-test`.
+- When generating phase artifacts, follow skill `agent-output`.
