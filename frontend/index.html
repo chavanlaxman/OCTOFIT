@@ -9,7 +9,12 @@
   </head>
   <body>
     <main class="page-shell">
-      <section class="hero-card">
+      <nav class="main-nav" aria-label="Main">
+        <button type="button" id="nav-home" class="nav-button is-active">Home</button>
+        <button type="button" id="nav-nutrition-routine" class="nav-button">Nutrition &amp; Routine</button>
+      </nav>
+
+      <section id="bootstrap-view" class="hero-card">
         <p id="hero-eyebrow" class="eyebrow">OctoFit bootstrap</p>
         <h1 id="hero-title">Track sessions and compare the leaderboard</h1>
         <p id="hero-subtitle" class="subtitle">
@@ -71,6 +76,128 @@
             <p class="feed-copy">Suggestions returned by the bootstrap response.</p>
           </div>
           <ul id="recommendations-list" class="feed-list"></ul>
+        </section>
+      </section>
+
+      <section id="nutrition-routine-view" class="hero-card nutrition-routine-view" hidden>
+        <p class="eyebrow">OctoFit daily tracker</p>
+        <h1>Nutrition &amp; Routine</h1>
+        <p class="subtitle">
+          Log meals and daily wellness metrics for a selected date, then edit or delete entries that stay persisted through the API.
+        </p>
+
+        <div id="nutrition-routine-status" class="status" aria-live="polite"></div>
+
+        <section class="tracker-controls" aria-label="Daily context">
+          <div class="field">
+            <label for="nutrition-routine-date">Date</label>
+            <input id="nutrition-routine-date" name="nutrition-routine-date" type="date" required />
+          </div>
+          <div class="field">
+            <label for="nutrition-routine-user-id">User id</label>
+            <input id="nutrition-routine-user-id" name="nutrition-routine-user-id" type="text" inputmode="numeric" required />
+            <div id="nutrition-routine-user-id-error" class="field-error"></div>
+          </div>
+        </section>
+
+        <section class="tracker-grid" aria-label="Nutrition and routine forms">
+          <section class="feed-panel" aria-labelledby="nutrition-form-title">
+            <div class="feed-header">
+              <h2 id="nutrition-form-title">Nutrition entry</h2>
+              <p class="feed-copy">Add or edit a meal for the selected date.</p>
+            </div>
+            <form id="nutrition-form" class="form-grid">
+              <input id="nutrition-edit-id" type="hidden" value="" />
+              <div class="field">
+                <label for="mealType">Meal type</label>
+                <select id="mealType" name="mealType" required>
+                  <option value="">Select meal type</option>
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Lunch">Lunch</option>
+                  <option value="Dinner">Dinner</option>
+                  <option value="Snack">Snack</option>
+                </select>
+                <div id="mealType-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <label for="description">Description</label>
+                <input id="description" name="description" type="text" required />
+                <div id="description-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <label for="calories">Calories (optional)</label>
+                <input id="calories" name="calories" type="number" min="0" step="any" />
+                <div id="calories-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <label for="protein">Protein (optional)</label>
+                <input id="protein" name="protein" type="number" min="0" step="any" />
+                <div id="protein-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <label for="carbs">Carbs (optional)</label>
+                <input id="carbs" name="carbs" type="number" min="0" step="any" />
+                <div id="carbs-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <label for="fat">Fat (optional)</label>
+                <input id="fat" name="fat" type="number" min="0" step="any" />
+                <div id="fat-error" class="field-error"></div>
+              </div>
+              <div class="submit-row">
+                <button id="nutrition-submit" type="submit">Save nutrition</button>
+                <button id="nutrition-cancel-edit" type="button" class="secondary-button" hidden>Cancel edit</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="feed-panel" aria-labelledby="routine-form-title">
+            <div class="feed-header">
+              <h2 id="routine-form-title">Routine entry</h2>
+              <p class="feed-copy">Add or edit sleep, water, and steps for the selected date.</p>
+            </div>
+            <form id="routine-form" class="form-grid">
+              <input id="routine-edit-id" type="hidden" value="" />
+              <div class="field">
+                <label for="sleepHours">Sleep hours</label>
+                <input id="sleepHours" name="sleepHours" type="number" min="0" max="24" step="any" required />
+                <div id="sleepHours-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <label for="waterIntake">Water intake (ml)</label>
+                <input id="waterIntake" name="waterIntake" type="number" min="0" step="any" required />
+                <div id="waterIntake-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <label for="steps">Steps</label>
+                <input id="steps" name="steps" type="number" min="0" step="1" required />
+                <div id="steps-error" class="field-error"></div>
+              </div>
+              <div class="submit-row">
+                <button id="routine-submit" type="submit">Save routine</button>
+                <button id="routine-cancel-edit" type="button" class="secondary-button" hidden>Cancel edit</button>
+              </div>
+            </form>
+          </section>
+        </section>
+
+        <section class="tracker-lists" aria-label="Daily lists">
+          <section class="feed-panel" aria-labelledby="nutrition-daily-title">
+            <div class="feed-header">
+              <h2 id="nutrition-daily-title">Nutrition for selected date</h2>
+              <p class="feed-copy">All meals logged for the selected user and date.</p>
+            </div>
+            <div id="nutrition-daily-empty" class="feed-empty">No nutrition entries for this date.</div>
+            <ul id="nutrition-daily-list" class="feed-list"></ul>
+          </section>
+          <section class="feed-panel" aria-labelledby="routine-daily-title">
+            <div class="feed-header">
+              <h2 id="routine-daily-title">Routine for selected date</h2>
+              <p class="feed-copy">All routine entries logged for the selected user and date.</p>
+            </div>
+            <div id="routine-daily-empty" class="feed-empty">No routine entries for this date.</div>
+            <ul id="routine-daily-list" class="feed-list"></ul>
+          </section>
         </section>
       </section>
     </main>

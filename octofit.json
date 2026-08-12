@@ -1,57 +1,57 @@
 {
-  "story": "OCTOFIT-11",
-  "updatedAt": "2026-07-28",
+  "story": "OCTOFITAI-15",
+  "updatedAt": "2026-08-12",
   "artifactState": {
-    "requirements": "artifacts/OCTOFIT-11/requirements.md targets OCTOFIT-11",
-    "architecture": "artifacts/OCTOFIT-11/architecture.md targets OCTOFIT-11",
-    "designReview": "artifacts/OCTOFIT-11/design-review.md targets OCTOFIT-11",
-    "implementationPlan": "artifacts/OCTOFIT-11/impl-plan.md targets OCTOFIT-11",
-    "implementation": "artifacts/OCTOFIT-11/implementation.md targets OCTOFIT-11",
-    "review": "artifacts/OCTOFIT-11/review.md targets OCTOFIT-11",
-    "verify": "artifacts/OCTOFIT-11/verify.md targets OCTOFIT-11",
-    "pr": "artifacts/OCTOFIT-11/pr.md targets OCTOFIT-11"
+    "requirements": "artifacts/OCTOFITAI-15/requirements.md",
+    "architecture": "artifacts/OCTOFITAI-15/architecture.md",
+    "designReview": "artifacts/OCTOFITAI-15/design-review.md",
+    "implementationPlan": "artifacts/OCTOFITAI-15/impl-plan.md",
+    "implementation": "artifacts/OCTOFITAI-15/implementation.md",
+    "review": "artifacts/OCTOFITAI-15/review.md",
+    "verify": "artifacts/OCTOFITAI-15/verify.md",
+    "pr": "artifacts/OCTOFITAI-15/pr.md"
   },
   "stages": [
     {
       "name": "Requirements From Story",
       "status": "succeed",
-      "details": "Completed from the OCTOFIT-11 Jira story retrieved through the configured Atlassian MCP. artifacts/OCTOFIT-11/requirements.md captures bootstrap inclusion, display-ready recommendation structure, API base-path retrieval, and explicit frontend impact analysis."
+      "details": "Requirements drafted for OCTOFITAI-15 Nutrition & Daily Routine Tracker MVP: nutrition/routine CRUD, daily view, JSON/Mongo persistence, FE nav+page, backend tests, Playwright smoke. Artifact: artifacts/OCTOFITAI-15/requirements.md"
     },
     {
       "name": "Architecture From Requirements",
       "status": "succeed",
-      "details": "Completed from artifacts/OCTOFIT-11/requirements.md. artifacts/OCTOFIT-11/architecture.md grounds the story in the existing bootstrap service, bootstrap route, and frontend API-base-path fetch path."
+      "details": "Architecture for OCTOFITAI-15: sibling REST /api/nutrition/ and /api/routine/, service+repository layers, OCTOFIT_STORAGE json|mongo, userId scoping, FE nav+dedicated view+fetch helpers. Artifact: artifacts/OCTOFITAI-15/architecture.md"
     },
     {
       "name": "Design Review",
       "status": "succeed",
-      "details": "Completed from artifacts/OCTOFIT-11/architecture.md. The review approved the existing bootstrap-centered design, identified an evidence gap in tests rather than a design gap, and confirmed the frontend impact is contract-validation only."
+      "details": "Approved with findings for OCTOFITAI-15: FE impact adequate; locked DELETE 204, list filter 400, MVP lists as daily summary, Playwright at repo root; CORS PUT/DELETE and dual-store guardrails for impl. Artifact: artifacts/OCTOFITAI-15/design-review.md"
     },
     {
       "name": "Implementation Planning",
       "status": "succeed",
-      "details": "Completed from artifacts/OCTOFIT-11/architecture.md and artifacts/OCTOFIT-11/design-review.md. artifacts/OCTOFIT-11/impl-plan.md scopes focused bootstrap recommendation validation, unchanged frontend evidence, and story-state synchronization in octofit.json."
+      "details": "Implementation plan for OCTOFITAI-15: 19 tasks (8 BE, 6 FE, 5 shared) covering CORS PUT/DELETE, JSON/Mongo repos, nutrition/routine REST+validation, FE nav/view/forms/lists, AC8 backend tests, root Playwright test:e2e AC9. Artifact: artifacts/OCTOFITAI-15/impl-plan.md"
     },
     {
       "name": "Implementation",
       "status": "succeed",
-      "details": "Completed for OCTOFIT-11. No production code change was required because the current bootstrap route, bootstrap service, and frontend recommendation rendering path already satisfied the story; focused backend acceptance tests were added to make that behavior explicit and verifiable."
+      "details": "Implemented Nutrition & Routine MVP: REST CRUD + JSON/Mongo persistence, FE nav/view/forms/lists, AC8 backend tests (33 pass), AC9 Playwright smoke (1 pass). Artifact: artifacts/OCTOFITAI-15/implementation.md"
     },
     {
       "name": "Review",
       "status": "succeed",
-      "details": "Completed for OCTOFIT-11. Review found no blocking code defects, confirmed the frontend impact analysis is explicit, and recorded the remaining evidence gap as lack of browser-level automation rather than a contract issue."
+      "details": "Self-review complete for OCTOFITAI-15: approve-with-findings; fixed full PUT optional-field clear + local today date; FE impact explicit; remaining medium gaps are 404 tests and Mongo suite. Artifact: artifacts/OCTOFITAI-15/review.md"
     },
     {
       "name": "Verify",
       "status": "succeed",
-      "details": "Completed for OCTOFIT-11. Local verification passed with 21 backend tests, a clean frontend syntax check, and no diagnostics in touched files, while explicitly retaining the browser-level coverage and in-memory recommendation risks."
+      "details": "Verified OCTOFITAI-15: backend npm test 38/38 pass (added 404 + PUT-clear tests); Playwright test:e2e 1/1 pass; FE impact + artifacts OK; Mongo/e2e edit-delete remain accepted gaps. Artifact: artifacts/OCTOFITAI-15/verify.md"
     },
     {
       "name": "PR Using Agentic SDLC",
-      "status": "failed",
-      "details": "Blocked for OCTOFIT-11. The workspace is still based on feature/OCTOFIT-10-join-existing-team with unrelated local changes, so a clean Jira-named feature branch and MR against main cannot be produced from the current state without mixing stories or making unsupported branch assumptions."
+      "status": "in-progress",
+      "details": "Creating feature/OCTOFITAI-15 branch, committing MVP + artifacts, opening GitHub PR to main."
     }
   ],
-  "blocker": "PR stage blocked: current repository state is on feature/OCTOFIT-10-join-existing-team with unrelated local modifications, so a clean OCTOFIT-11 branch and MR against main cannot be created safely from the grounded current workspace."
+  "blocker": null
 }

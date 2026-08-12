@@ -1,0 +1,13 @@
+{
+  "name": "octofit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OctoFit scaffold with Nutrition & Routine Playwright smoke",
+  "scripts": {
+    "test:e2e": "npx playwright test",
+    "start:backend": "npm --prefix backend start"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}
