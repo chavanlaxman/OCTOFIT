@@ -8,9 +8,21 @@
 | Branch | `feature/OCTOFITAI-15` |
 | Base | `main` |
 | Remote | `https://github.com/chavanlaxman/OCTOFIT.git` |
-| PR URL | _Pending remote creation_ |
-| PR Number | _Pending_ |
-| Status | Drafting local PR package |
+| Commit | `176152e` — OCTOFITAI-15: Add Nutrition & Daily Routine Tracker MVP. |
+| Push | Succeeded — `origin/feature/OCTOFITAI-15` |
+| PR URL | _Not created — see Blocker_ |
+| PR Number | _N/A_ |
+| Status | **failed** (remote PR open blocked) |
+| Manual open | https://github.com/chavanlaxman/OCTOFIT/pull/new/feature/OCTOFITAI-15 |
+
+## Blocker
+
+Remote PR creation failed after branch push:
+
+1. **GitHub MCP** `create_pull_request` → `403 Resource not accessible by personal access token` (retried after `mcp_auth`; same 403). Read tools (e.g. `list_pull_requests`) work; PAT lacks pull-request write access.
+2. **`gh pr create` fallback** → `gh` not logged in; `GH_TOKEN` / `GITHUB_TOKEN` unset.
+
+Branch `feature/OCTOFITAI-15` is on origin with the implementation commit. Open the PR manually (link above) using the body below, or re-auth GitHub MCP/`gh` with `pull_requests:write` (or classic `repo`) and re-run PR stage.
 
 ## Source
 
@@ -82,7 +94,7 @@ Verify also closed review’s missing update/delete `404` coverage and added a n
 - [ ] Verification results reviewed
 - [ ] Change is ready for merge
 
-## PR Body (for GitHub)
+## PR Body (for GitHub — paste when opening manually)
 
 ```markdown
 ## Summary
