@@ -9,7 +9,7 @@
     "implementation": "artifacts/OCTOFITAI-16/implementation.md",
     "review": "artifacts/OCTOFITAI-16/review.md",
     "verify": "artifacts/OCTOFITAI-16/verify.md",
-    "pr": null
+    "pr": "artifacts/OCTOFITAI-16/pr.md"
   },
   "stages": [
     {
@@ -49,8 +49,8 @@
     },
     {
       "name": "PR Using Agentic SDLC",
-      "status": "in-progress",
-      "details": "Queued; waiting on verify."
+      "status": "succeed",
+      "details": "Opened https://github.com/chavanlaxman/OCTOFIT/pull/2 (#2) for feature/OCTOFITAI-16 → main. GitHub MCP create_pull_request returned 403; gh pr create succeeded."
     }
   ],
   "blocker": null
