@@ -1,2 +1,9 @@
 backend/node_modules/
+backend/data/*.json
 artifacts/
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+

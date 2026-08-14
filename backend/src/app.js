@@ -10,6 +10,27 @@ const { createBootstrapPayload } = require('./bootstrapService');
 const { registrationContract } = require('./registrationContract');
 const { registerStudent } = require('./registrationService');
 const { createTeam, joinTeam, listTeams } = require('./teamService');
+const {
+  createNutrition,
+  updateNutrition,
+  deleteNutrition,
+  listNutrition,
+} = require('./nutritionService');
+const {
+  createRoutine,
+  updateRoutine,
+  deleteRoutine,
+  listRoutine,
+} = require('./routineService');
+
+async function sendServiceResult(response, resultPromise) {
+  const result = await resultPromise;
+  if (result.statusCode === 204) {
+    return response.status(204).end();
+  }
+
+  return response.status(result.statusCode).json(result.body);
+}
 
 function createApp() {
   const app = express();
@@ -18,7 +39,7 @@ function createApp() {
   app.use((request, response, next) => {
     response.setHeader('Access-Control-Allow-Origin', '*');
     response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    response.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    response.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
 
     if (request.method === 'OPTIONS') {
       return response.sendStatus(204);
@@ -91,6 +112,38 @@ function createApp() {
   app.post(registrationContract.endpoint, (request, response) => {
     const result = registerStudent(request.body || {});
     response.status(result.statusCode).json(result.body);
+  });
+
+  app.post('/api/nutrition/', (request, response, next) => {
+    sendServiceResult(response, createNutrition(request.body || {})).catch(next);
+  });
+
+  app.get('/api/nutrition/', (request, response, next) => {
+    sendServiceResult(response, listNutrition(request.query || {})).catch(next);
+  });
+
+  app.put('/api/nutrition/:id', (request, response, next) => {
+    sendServiceResult(response, updateNutrition(request.params.id, request.body || {})).catch(next);
+  });
+
+  app.delete('/api/nutrition/:id', (request, response, next) => {
+    sendServiceResult(response, deleteNutrition(request.params.id)).catch(next);
+  });
+
+  app.post('/api/routine/', (request, response, next) => {
+    sendServiceResult(response, createRoutine(request.body || {})).catch(next);
+  });
+
+  app.get('/api/routine/', (request, response, next) => {
+    sendServiceResult(response, listRoutine(request.query || {})).catch(next);
+  });
+
+  app.put('/api/routine/:id', (request, response, next) => {
+    sendServiceResult(response, updateRoutine(request.params.id, request.body || {})).catch(next);
+  });
+
+  app.delete('/api/routine/:id', (request, response, next) => {
+    sendServiceResult(response, deleteRoutine(request.params.id)).catch(next);
   });
 
   return app;

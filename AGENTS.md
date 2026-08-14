@@ -21,6 +21,16 @@ This repository uses **Cursor** for the Agentic SDLC.
 | Phase artifacts | `artifacts/<JIRA-KEY>/` |
 | Pipeline status | `octofit.json` |
 
+## PR Review Bot
+
+For Cursor-Bot-style reviews (inline comments + suggestions + metrics):
+
+- `/review-pr-bot <PR# or URL>` or `/review-pr <PR# or URL>`
+- Agent: `@pr-review-bot`
+- Skill: `pr-review-bot`
+
+Posts line comments and GitHub `suggestion` blocks automatically, with Correctness / Lint / Security / Tests / Maintainability scores.
+
 ## Master entrypoint
 
 Invoke **`@master-sdlc-flow`** (or ask to run the master SDLC flow) with a Jira key such as `OCTOFITAI-22`.

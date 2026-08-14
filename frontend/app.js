@@ -16,6 +16,28 @@ const activityFeedList = document.getElementById('activity-feed-list');
 const activityFeedEmpty = document.getElementById('activity-feed-empty');
 const recommendationsList = document.getElementById('recommendations-list');
 
+const bootstrapView = document.getElementById('bootstrap-view');
+const nutritionRoutineView = document.getElementById('nutrition-routine-view');
+const navHomeButton = document.getElementById('nav-home');
+const navNutritionRoutineButton = document.getElementById('nav-nutrition-routine');
+const nutritionRoutineStatus = document.getElementById('nutrition-routine-status');
+const nutritionRoutineDate = document.getElementById('nutrition-routine-date');
+const nutritionRoutineUserId = document.getElementById('nutrition-routine-user-id');
+const nutritionForm = document.getElementById('nutrition-form');
+const routineForm = document.getElementById('routine-form');
+const nutritionEditId = document.getElementById('nutrition-edit-id');
+const routineEditId = document.getElementById('routine-edit-id');
+const nutritionCancelEdit = document.getElementById('nutrition-cancel-edit');
+const routineCancelEdit = document.getElementById('routine-cancel-edit');
+const nutritionDailyList = document.getElementById('nutrition-daily-list');
+const nutritionDailyEmpty = document.getElementById('nutrition-daily-empty');
+const routineDailyList = document.getElementById('routine-daily-list');
+const routineDailyEmpty = document.getElementById('routine-daily-empty');
+
+const NUTRITION_FIELD_NAMES = ['mealType', 'description', 'calories', 'protein', 'carbs', 'fat'];
+const ROUTINE_FIELD_NAMES = ['sleepHours', 'waterIntake', 'steps'];
+const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+
 function getApiBaseUrl() {
   if (window.OCTOFIT_API_BASE_URL) {
     return String(window.OCTOFIT_API_BASE_URL).replace(/\/$/, '');
@@ -28,6 +50,14 @@ function getApiBaseUrl() {
 
 function buildApiUrl(path) {
   return `${getApiBaseUrl()}${path}`;
+}
+
+function todayIsoDate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 async function loadContract() {
@@ -84,9 +114,15 @@ function setStatus(message, kind = '') {
   statusElement.textContent = message;
 }
 
+function setNutritionRoutineStatus(message, kind = '') {
+  nutritionRoutineStatus.className = kind ? `status ${kind}` : 'status';
+  nutritionRoutineStatus.textContent = message;
+}
+
 function clearFieldErrors(fields) {
   for (const field of fields) {
-    const errorElement = document.getElementById(`${field.name}-error`);
+    const fieldName = typeof field === 'string' ? field : field.name;
+    const errorElement = document.getElementById(`${fieldName}-error`);
     if (errorElement) {
       errorElement.textContent = '';
     }
@@ -287,6 +323,19 @@ function renderRecommendations(recommendations) {
   recommendationsList.replaceChildren(...recommendations.map(renderRecommendation));
 }
 
+function seedUserIdFromBootstrap(users) {
+  if (nutritionRoutineUserId.value.trim()) {
+    return;
+  }
+
+  if (Array.isArray(users) && users.length > 0) {
+    nutritionRoutineUserId.value = String(users[0].id);
+    return;
+  }
+
+  nutritionRoutineUserId.value = '1';
+}
+
 function renderBootstrap(bootstrap) {
   renderHero(bootstrap.hero);
   renderDashboard(bootstrap.dashboard);
@@ -296,6 +345,478 @@ function renderBootstrap(bootstrap) {
   renderActivityFeed(bootstrap.activities || []);
   renderLeaderboard(bootstrap.leaderboard || []);
   renderRecommendations(bootstrap.recommendations || []);
+  seedUserIdFromBootstrap(bootstrap.users || []);
+}
+
+function showView(viewName) {
+  const showNutrition = viewName === 'nutrition-routine';
+  bootstrapView.hidden = showNutrition;
+  nutritionRoutineView.hidden = !showNutrition;
+  navHomeButton.classList.toggle('is-active', !showNutrition);
+  navNutritionRoutineButton.classList.toggle('is-active', showNutrition);
+}
+
+function getSelectedContext() {
+  return {
+    userId: nutritionRoutineUserId.value.trim(),
+    date: nutritionRoutineDate.value,
+  };
+}
+
+function validateContext() {
+  const errors = {};
+  const { userId, date } = getSelectedContext();
+  const userError = document.getElementById('nutrition-routine-user-id-error');
+
+  if (!userId) {
+    errors.userId = ['User id is required.'];
+  }
+
+  if (!date) {
+    errors.date = ['Date is required.'];
+  }
+
+  if (userError) {
+    userError.textContent = errors.userId ? errors.userId.join(' ') : '';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    userId,
+    date,
+    errors,
+  };
+}
+
+function validateNutritionClient(payload) {
+  const errors = {};
+  const mealType = String(payload.mealType || '').trim();
+  const description = String(payload.description || '').trim();
+
+  if (!mealType) {
+    errors.mealType = ['Meal type is required.'];
+  } else if (!MEAL_TYPES.includes(mealType)) {
+    errors.mealType = ['Meal type must be Breakfast, Lunch, Dinner, or Snack.'];
+  }
+
+  if (!description) {
+    errors.description = ['Description is required.'];
+  }
+
+  for (const fieldName of ['calories', 'protein', 'carbs', 'fat']) {
+    const raw = payload[fieldName];
+    if (raw === undefined || raw === null || raw === '') {
+      continue;
+    }
+
+    const value = Number(raw);
+    if (Number.isNaN(value)) {
+      errors[fieldName] = [`${fieldName} must be a number.`];
+    } else if (value < 0) {
+      errors[fieldName] = [`${fieldName} must be zero or greater.`];
+    }
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+    sanitized: {
+      mealType,
+      description,
+      calories: payload.calories === '' ? undefined : payload.calories,
+      protein: payload.protein === '' ? undefined : payload.protein,
+      carbs: payload.carbs === '' ? undefined : payload.carbs,
+      fat: payload.fat === '' ? undefined : payload.fat,
+    },
+  };
+}
+
+function validateRoutineClient(payload) {
+  const errors = {};
+  const sleepHours = Number(payload.sleepHours);
+  const waterIntake = Number(payload.waterIntake);
+  const steps = Number(payload.steps);
+
+  if (payload.sleepHours === '' || Number.isNaN(sleepHours)) {
+    errors.sleepHours = ['Sleep hours is required.'];
+  } else if (sleepHours < 0 || sleepHours > 24) {
+    errors.sleepHours = ['Sleep hours must be between 0 and 24.'];
+  }
+
+  if (payload.waterIntake === '' || Number.isNaN(waterIntake)) {
+    errors.waterIntake = ['Water intake is required.'];
+  } else if (waterIntake < 0) {
+    errors.waterIntake = ['Water intake must be zero or greater.'];
+  }
+
+  if (payload.steps === '' || Number.isNaN(steps)) {
+    errors.steps = ['Steps is required.'];
+  } else if (!Number.isInteger(steps) || steps < 0) {
+    errors.steps = ['Steps must be a whole number zero or greater.'];
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+    sanitized: {
+      sleepHours,
+      waterIntake,
+      steps,
+    },
+  };
+}
+
+function collectNutritionFormPayload() {
+  return {
+    mealType: document.getElementById('mealType').value,
+    description: document.getElementById('description').value,
+    calories: document.getElementById('calories').value,
+    protein: document.getElementById('protein').value,
+    carbs: document.getElementById('carbs').value,
+    fat: document.getElementById('fat').value,
+  };
+}
+
+function collectRoutineFormPayload() {
+  return {
+    sleepHours: document.getElementById('sleepHours').value,
+    waterIntake: document.getElementById('waterIntake').value,
+    steps: document.getElementById('steps').value,
+  };
+}
+
+function resetNutritionForm() {
+  nutritionForm.reset();
+  nutritionEditId.value = '';
+  nutritionCancelEdit.hidden = true;
+  document.getElementById('nutrition-submit').textContent = 'Save nutrition';
+  clearFieldErrors(NUTRITION_FIELD_NAMES);
+}
+
+function resetRoutineForm() {
+  routineForm.reset();
+  routineEditId.value = '';
+  routineCancelEdit.hidden = true;
+  document.getElementById('routine-submit').textContent = 'Save routine';
+  clearFieldErrors(ROUTINE_FIELD_NAMES);
+}
+
+function fillNutritionForm(entry) {
+  nutritionEditId.value = String(entry.id);
+  document.getElementById('mealType').value = entry.mealType || '';
+  document.getElementById('description').value = entry.description || '';
+  document.getElementById('calories').value = entry.calories ?? '';
+  document.getElementById('protein').value = entry.protein ?? '';
+  document.getElementById('carbs').value = entry.carbs ?? '';
+  document.getElementById('fat').value = entry.fat ?? '';
+  nutritionCancelEdit.hidden = false;
+  document.getElementById('nutrition-submit').textContent = 'Update nutrition';
+}
+
+function fillRoutineForm(entry) {
+  routineEditId.value = String(entry.id);
+  document.getElementById('sleepHours').value = entry.sleepHours ?? '';
+  document.getElementById('waterIntake').value = entry.waterIntake ?? '';
+  document.getElementById('steps').value = entry.steps ?? '';
+  routineCancelEdit.hidden = false;
+  document.getElementById('routine-submit').textContent = 'Update routine';
+}
+
+async function fetchNutritionEntries(userId, date) {
+  const response = await fetch(
+    buildApiUrl(`/api/nutrition/?userId=${encodeURIComponent(userId)}&date=${encodeURIComponent(date)}`),
+  );
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = body.errors
+      ? Object.values(body.errors).flat().join(' ')
+      : 'Unable to load nutrition entries.';
+    throw new Error(message);
+  }
+
+  return body.nutritionEntries || [];
+}
+
+async function fetchRoutineEntries(userId, date) {
+  const response = await fetch(
+    buildApiUrl(`/api/routine/?userId=${encodeURIComponent(userId)}&date=${encodeURIComponent(date)}`),
+  );
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = body.errors
+      ? Object.values(body.errors).flat().join(' ')
+      : 'Unable to load routine entries.';
+    throw new Error(message);
+  }
+
+  return body.routines || [];
+}
+
+function renderNutritionEntry(entry) {
+  const item = document.createElement('li');
+  item.className = 'feed-item';
+  item.dataset.nutritionId = String(entry.id);
+
+  const title = document.createElement('div');
+  title.className = 'feed-item-title';
+  title.textContent = `${entry.mealType}: ${entry.description}`;
+
+  const meta = document.createElement('div');
+  meta.className = 'feed-item-meta';
+  const macros = [
+    entry.calories != null ? `${entry.calories} cal` : null,
+    entry.protein != null ? `P ${entry.protein}` : null,
+    entry.carbs != null ? `C ${entry.carbs}` : null,
+    entry.fat != null ? `F ${entry.fat}` : null,
+  ].filter(Boolean);
+  meta.textContent = macros.length > 0 ? macros.join(' · ') : 'No macros provided';
+
+  const actions = document.createElement('div');
+  actions.className = 'row-actions';
+
+  const editButton = document.createElement('button');
+  editButton.type = 'button';
+  editButton.className = 'secondary-button';
+  editButton.textContent = 'Edit';
+  editButton.addEventListener('click', () => {
+    fillNutritionForm(entry);
+    setNutritionRoutineStatus(`Editing nutrition #${entry.id}.`, '');
+  });
+
+  const deleteButton = document.createElement('button');
+  deleteButton.type = 'button';
+  deleteButton.className = 'danger-button';
+  deleteButton.textContent = 'Delete';
+  deleteButton.addEventListener('click', async () => {
+    if (!window.confirm('Delete this nutrition entry?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(buildApiUrl(`/api/nutrition/${entry.id}`), {
+        method: 'DELETE',
+      });
+      if (!response.ok && response.status !== 204) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.errors ? Object.values(body.errors).flat().join(' ') : 'Delete failed.');
+      }
+
+      setNutritionRoutineStatus('Nutrition entry deleted.', 'success');
+      await reloadDailyLists();
+    } catch (error) {
+      setNutritionRoutineStatus(error.message || 'Unable to delete nutrition entry.', 'error');
+    }
+  });
+
+  actions.append(editButton, deleteButton);
+  item.append(title, meta, actions);
+  return item;
+}
+
+function renderRoutineEntry(entry) {
+  const item = document.createElement('li');
+  item.className = 'feed-item';
+  item.dataset.routineId = String(entry.id);
+
+  const title = document.createElement('div');
+  title.className = 'feed-item-title';
+  title.textContent = `${entry.sleepHours}h sleep · ${entry.waterIntake} ml · ${entry.steps} steps`;
+
+  const meta = document.createElement('div');
+  meta.className = 'feed-item-meta';
+  meta.textContent = `User ${entry.userId} on ${entry.date}`;
+
+  const actions = document.createElement('div');
+  actions.className = 'row-actions';
+
+  const editButton = document.createElement('button');
+  editButton.type = 'button';
+  editButton.className = 'secondary-button';
+  editButton.textContent = 'Edit';
+  editButton.addEventListener('click', () => {
+    fillRoutineForm(entry);
+    setNutritionRoutineStatus(`Editing routine #${entry.id}.`, '');
+  });
+
+  const deleteButton = document.createElement('button');
+  deleteButton.type = 'button';
+  deleteButton.className = 'danger-button';
+  deleteButton.textContent = 'Delete';
+  deleteButton.addEventListener('click', async () => {
+    if (!window.confirm('Delete this routine entry?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(buildApiUrl(`/api/routine/${entry.id}`), {
+        method: 'DELETE',
+      });
+      if (!response.ok && response.status !== 204) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.errors ? Object.values(body.errors).flat().join(' ') : 'Delete failed.');
+      }
+
+      setNutritionRoutineStatus('Routine entry deleted.', 'success');
+      await reloadDailyLists();
+    } catch (error) {
+      setNutritionRoutineStatus(error.message || 'Unable to delete routine entry.', 'error');
+    }
+  });
+
+  actions.append(editButton, deleteButton);
+  item.append(title, meta, actions);
+  return item;
+}
+
+function renderNutritionList(entries) {
+  nutritionDailyList.replaceChildren(...entries.map(renderNutritionEntry));
+  nutritionDailyEmpty.hidden = entries.length > 0;
+}
+
+function renderRoutineList(entries) {
+  routineDailyList.replaceChildren(...entries.map(renderRoutineEntry));
+  routineDailyEmpty.hidden = entries.length > 0;
+}
+
+async function reloadDailyLists() {
+  const context = validateContext();
+  if (!context.isValid) {
+    renderNutritionList([]);
+    renderRoutineList([]);
+    setNutritionRoutineStatus('Select a user id and date to load daily entries.', 'error');
+    return;
+  }
+
+  try {
+    const [nutritionEntries, routines] = await Promise.all([
+      fetchNutritionEntries(context.userId, context.date),
+      fetchRoutineEntries(context.userId, context.date),
+    ]);
+    renderNutritionList(nutritionEntries);
+    renderRoutineList(routines);
+  } catch (error) {
+    setNutritionRoutineStatus(error.message || 'Unable to load daily lists.', 'error');
+  }
+}
+
+async function handleNutritionSubmit(event) {
+  event.preventDefault();
+  clearFieldErrors(NUTRITION_FIELD_NAMES);
+
+  const context = validateContext();
+  if (!context.isValid) {
+    setNutritionRoutineStatus('User id and date are required.', 'error');
+    return;
+  }
+
+  const clientValidation = validateNutritionClient(collectNutritionFormPayload());
+  if (!clientValidation.isValid) {
+    showFieldErrors(clientValidation.errors);
+    setNutritionRoutineStatus('Please fix the highlighted nutrition fields.', 'error');
+    return;
+  }
+
+  const editId = nutritionEditId.value.trim();
+  const payload = {
+    userId: context.userId,
+    date: context.date,
+    ...clientValidation.sanitized,
+  };
+
+  Object.keys(payload).forEach((key) => {
+    if (payload[key] === undefined) {
+      delete payload[key];
+    }
+  });
+
+  const submitButton = document.getElementById('nutrition-submit');
+  submitButton.disabled = true;
+  setNutritionRoutineStatus(editId ? 'Updating nutrition...' : 'Saving nutrition...');
+
+  try {
+    const response = await fetch(
+      buildApiUrl(editId ? `/api/nutrition/${editId}` : '/api/nutrition/'),
+      {
+        method: editId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      },
+    );
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      showFieldErrors(body.errors || {});
+      setNutritionRoutineStatus('Please fix the highlighted nutrition fields.', 'error');
+      return;
+    }
+
+    resetNutritionForm();
+    setNutritionRoutineStatus(
+      editId ? 'Nutrition entry updated.' : `Nutrition saved: ${body.nutrition.description}`,
+      'success',
+    );
+    await reloadDailyLists();
+  } catch (error) {
+    setNutritionRoutineStatus(error.message || 'Nutrition save failed.', 'error');
+  } finally {
+    submitButton.disabled = false;
+  }
+}
+
+async function handleRoutineSubmit(event) {
+  event.preventDefault();
+  clearFieldErrors(ROUTINE_FIELD_NAMES);
+
+  const context = validateContext();
+  if (!context.isValid) {
+    setNutritionRoutineStatus('User id and date are required.', 'error');
+    return;
+  }
+
+  const clientValidation = validateRoutineClient(collectRoutineFormPayload());
+  if (!clientValidation.isValid) {
+    showFieldErrors(clientValidation.errors);
+    setNutritionRoutineStatus('Please fix the highlighted routine fields.', 'error');
+    return;
+  }
+
+  const editId = routineEditId.value.trim();
+  const payload = {
+    userId: context.userId,
+    date: context.date,
+    ...clientValidation.sanitized,
+  };
+
+  const submitButton = document.getElementById('routine-submit');
+  submitButton.disabled = true;
+  setNutritionRoutineStatus(editId ? 'Updating routine...' : 'Saving routine...');
+
+  try {
+    const response = await fetch(
+      buildApiUrl(editId ? `/api/routine/${editId}` : '/api/routine/'),
+      {
+        method: editId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      },
+    );
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      showFieldErrors(body.errors || {});
+      setNutritionRoutineStatus('Please fix the highlighted routine fields.', 'error');
+      return;
+    }
+
+    resetRoutineForm();
+    setNutritionRoutineStatus(
+      editId ? 'Routine entry updated.' : `Routine saved with ${body.routine.steps} steps.`,
+      'success',
+    );
+    await reloadDailyLists();
+  } catch (error) {
+    setNutritionRoutineStatus(error.message || 'Routine save failed.', 'error');
+  } finally {
+    submitButton.disabled = false;
+  }
 }
 
 async function handleSubmit(event, contract) {
@@ -333,7 +854,42 @@ async function handleSubmit(event, contract) {
   }
 }
 
+function wireNutritionRoutineView() {
+  nutritionRoutineDate.value = todayIsoDate();
+
+  navHomeButton.addEventListener('click', () => {
+    showView('home');
+  });
+
+  navNutritionRoutineButton.addEventListener('click', async () => {
+    showView('nutrition-routine');
+    setNutritionRoutineStatus('Nutrition & Routine ready.');
+    await reloadDailyLists();
+  });
+
+  nutritionRoutineDate.addEventListener('change', () => {
+    reloadDailyLists();
+  });
+
+  nutritionRoutineUserId.addEventListener('change', () => {
+    reloadDailyLists();
+  });
+
+  nutritionForm.addEventListener('submit', handleNutritionSubmit);
+  routineForm.addEventListener('submit', handleRoutineSubmit);
+  nutritionCancelEdit.addEventListener('click', () => {
+    resetNutritionForm();
+    setNutritionRoutineStatus('Nutrition edit cancelled.');
+  });
+  routineCancelEdit.addEventListener('click', () => {
+    resetRoutineForm();
+    setNutritionRoutineStatus('Routine edit cancelled.');
+  });
+}
+
 async function init() {
+  wireNutritionRoutineView();
+
   try {
     const [contract, bootstrap] = await Promise.all([
       loadContract(),
@@ -360,6 +916,9 @@ async function init() {
     formElement.addEventListener('submit', (event) => handleSubmit(event, contract));
   } catch (error) {
     setStatus(error.message || 'Unable to initialize the activity form.', 'error');
+    if (!nutritionRoutineUserId.value) {
+      nutritionRoutineUserId.value = '1';
+    }
   }
 }
 
