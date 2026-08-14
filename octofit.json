@@ -49,9 +49,9 @@
     },
     {
       "name": "PR Using Agentic SDLC",
-      "status": "failed",
-      "details": "Branch feature/OCTOFITAI-15 pushed (commit 176152e) and artifacts/OCTOFITAI-15/pr.md written, but remote PR open failed: GitHub MCP create_pull_request 403 Resource not accessible by personal access token (after mcp_auth retry); gh not authenticated / no GH_TOKEN. Manual open: https://github.com/chavanlaxman/OCTOFIT/pull/new/feature/OCTOFITAI-15"
+      "status": "succeed",
+      "details": "Opened https://github.com/chavanlaxman/OCTOFIT/pull/1 via gh after auth login. Branch feature/OCTOFITAI-15 → main."
     }
   ],
-  "blocker": "Remote PR creation blocked: GitHub MCP create_pull_request returned 403 Resource not accessible by personal access token (PAT lacks pull-request write); gh CLI not logged in and GH_TOKEN/GITHUB_TOKEN unset. Branch feature/OCTOFITAI-15 is on origin — open PR manually at https://github.com/chavanlaxman/OCTOFIT/pull/new/feature/OCTOFITAI-15 or grant write scopes and re-run PR stage."
+  "blocker": null
 }
