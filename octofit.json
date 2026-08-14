@@ -1,56 +1,56 @@
 {
-  "story": "OCTOFITAI-15",
-  "updatedAt": "2026-08-12",
+  "story": "OCTOFITAI-16",
+  "updatedAt": "2026-08-14",
   "artifactState": {
-    "requirements": "artifacts/OCTOFITAI-15/requirements.md",
-    "architecture": "artifacts/OCTOFITAI-15/architecture.md",
-    "designReview": "artifacts/OCTOFITAI-15/design-review.md",
-    "implementationPlan": "artifacts/OCTOFITAI-15/impl-plan.md",
-    "implementation": "artifacts/OCTOFITAI-15/implementation.md",
-    "review": "artifacts/OCTOFITAI-15/review.md",
-    "verify": "artifacts/OCTOFITAI-15/verify.md",
-    "pr": "artifacts/OCTOFITAI-15/pr.md"
+    "requirements": "artifacts/OCTOFITAI-16/requirements.md",
+    "architecture": "artifacts/OCTOFITAI-16/architecture.md",
+    "designReview": "artifacts/OCTOFITAI-16/design-review.md",
+    "implementationPlan": "artifacts/OCTOFITAI-16/impl-plan.md",
+    "implementation": "artifacts/OCTOFITAI-16/implementation.md",
+    "review": "artifacts/OCTOFITAI-16/review.md",
+    "verify": "artifacts/OCTOFITAI-16/verify.md",
+    "pr": null
   },
   "stages": [
     {
       "name": "Requirements From Story",
       "status": "succeed",
-      "details": "Requirements drafted for OCTOFITAI-15 Nutrition & Daily Routine Tracker MVP: nutrition/routine CRUD, daily view, JSON/Mongo persistence, FE nav+page, backend tests, Playwright smoke. Artifact: artifacts/OCTOFITAI-15/requirements.md"
+      "details": "Drafted OCTOFITAI-16 Daily Tracker requirements: DailyEntry CRUD, last-7-days UI, bootstrap dailyEntries, JSON/Mongo persistence, and Playwright create/update coverage."
     },
     {
       "name": "Architecture From Requirements",
       "status": "succeed",
-      "details": "Architecture for OCTOFITAI-15: sibling REST /api/nutrition/ and /api/routine/, service+repository layers, OCTOFIT_STORAGE json|mongo, userId scoping, FE nav+dedicated view+fetch helpers. Artifact: artifacts/OCTOFITAI-15/architecture.md"
+      "details": "Daily Tracker layered like nutrition/routine: /api/daily-entries CRUD, unique userId+date, JSON/Mongo, async bootstrap dailyEntries, static nav+panel."
     },
     {
       "name": "Design Review",
       "status": "succeed",
-      "details": "Approved with findings for OCTOFITAI-15: FE impact adequate; locked DELETE 204, list filter 400, MVP lists as daily summary, Playwright at repo root; CORS PUT/DELETE and dual-store guardrails for impl. Artifact: artifacts/OCTOFITAI-15/design-review.md"
+      "details": "Reviewed Daily Tracker architecture: closed 409-vs-upsert UX, async bootstrap+catch(next), stale activityIds on PUT; CORS/204/dual-store accepted."
     },
     {
       "name": "Implementation Planning",
       "status": "succeed",
-      "details": "Implementation plan for OCTOFITAI-15: 19 tasks (8 BE, 6 FE, 5 shared) covering CORS PUT/DELETE, JSON/Mongo repos, nutrition/routine REST+validation, FE nav/view/forms/lists, AC8 backend tests, root Playwright test:e2e AC9. Artifact: artifacts/OCTOFITAI-15/impl-plan.md"
+      "details": "Daily Tracker impl-plan: 4 backend, 6 frontend, 4 shared (0 blocked); locked 409/hydrate, async bootstrap, live activityIds, local todayIsoDate."
     },
     {
       "name": "Implementation",
       "status": "succeed",
-      "details": "Implemented Nutrition & Routine MVP: REST CRUD + JSON/Mongo persistence, FE nav/view/forms/lists, AC8 backend tests (33 pass), AC9 Playwright smoke (1 pass). Artifact: artifacts/OCTOFITAI-15/implementation.md"
+      "details": "Daily Tracker shipped: 50/50 backend tests pass (13 new daily-entry). Playwright spec added; e2e blocked (no Chromium)."
     },
     {
       "name": "Review",
       "status": "succeed",
-      "details": "Self-review complete for OCTOFITAI-15: approve-with-findings; fixed full PUT optional-field clear + local today date; FE impact explicit; remaining medium gaps are 404 tests and Mongo suite. Artifact: artifacts/OCTOFITAI-15/review.md"
+      "details": "approve-with-findings: Daily Tracker product delta matches FR-01–FR-14; PUT 404 unit test gap (medium); Playwright blocked on Chromium (verify)."
     },
     {
       "name": "Verify",
       "status": "succeed",
-      "details": "Verified OCTOFITAI-15: backend npm test 38/38 pass (added 404 + PUT-clear tests); Playwright test:e2e 1/1 pass; FE impact + artifacts OK; Mongo/e2e edit-delete remain accepted gaps. Artifact: artifacts/OCTOFITAI-15/verify.md"
+      "details": "PASS: 52/52 backend tests (PUT 404 + GET invalid date added). Playwright 2/2 after Chromium install and fresh :3000 server. Frontend Daily Tracker confirmed."
     },
     {
       "name": "PR Using Agentic SDLC",
-      "status": "succeed",
-      "details": "Opened https://github.com/chavanlaxman/OCTOFIT/pull/1 via gh after auth login. Branch feature/OCTOFITAI-15 → main."
+      "status": "in-progress",
+      "details": "Queued; waiting on verify."
     }
   ],
   "blocker": null

@@ -18,8 +18,10 @@ const recommendationsList = document.getElementById('recommendations-list');
 
 const bootstrapView = document.getElementById('bootstrap-view');
 const nutritionRoutineView = document.getElementById('nutrition-routine-view');
+const dailyTrackerView = document.getElementById('daily-tracker-view');
 const navHomeButton = document.getElementById('nav-home');
 const navNutritionRoutineButton = document.getElementById('nav-nutrition-routine');
+const navDailyTrackerButton = document.getElementById('nav-daily-tracker');
 const nutritionRoutineStatus = document.getElementById('nutrition-routine-status');
 const nutritionRoutineDate = document.getElementById('nutrition-routine-date');
 const nutritionRoutineUserId = document.getElementById('nutrition-routine-user-id');
@@ -34,9 +36,24 @@ const nutritionDailyEmpty = document.getElementById('nutrition-daily-empty');
 const routineDailyList = document.getElementById('routine-daily-list');
 const routineDailyEmpty = document.getElementById('routine-daily-empty');
 
+const dailyTrackerStatus = document.getElementById('daily-tracker-status');
+const dailyTrackerDate = document.getElementById('daily-tracker-date');
+const dailyTrackerUserId = document.getElementById('daily-tracker-user-id');
+const dailyEntryForm = document.getElementById('daily-entry-form');
+const dailyEntryEditId = document.getElementById('daily-entry-edit-id');
+const dailyEntryList = document.getElementById('daily-entry-list');
+const dailyEntryEmpty = document.getElementById('daily-entry-empty');
+const dailyEntryActivityPicker = document.getElementById('daily-entry-activity-picker');
+const dailyEntryLogActivity = document.getElementById('daily-entry-log-activity');
+
 const NUTRITION_FIELD_NAMES = ['mealType', 'description', 'calories', 'protein', 'carbs', 'fat'];
 const ROUTINE_FIELD_NAMES = ['sleepHours', 'waterIntake', 'steps'];
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+const DAILY_ENTRY_FIELD_NAMES = ['notes', 'mood', 'energy', 'completed', 'activityIds', 'userId', 'date'];
+const MOODS = ['great', 'good', 'okay', 'low'];
+
+let liveActivities = [];
+let dailyEntriesCache = [];
 
 function getApiBaseUrl() {
   if (window.OCTOFIT_API_BASE_URL) {
@@ -58,6 +75,25 @@ function todayIsoDate() {
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const day = String(now.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+function addCalendarDays(isoDate, deltaDays) {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + deltaDays);
+  const nextYear = date.getFullYear();
+  const nextMonth = String(date.getMonth() + 1).padStart(2, '0');
+  const nextDay = String(date.getDate()).padStart(2, '0');
+  return `${nextYear}-${nextMonth}-${nextDay}`;
+}
+
+function lastNLocalDates(count) {
+  const dates = new Set();
+  const today = todayIsoDate();
+  for (let offset = 0; offset < count; offset += 1) {
+    dates.add(addCalendarDays(today, -offset));
+  }
+  return dates;
 }
 
 async function loadContract() {
@@ -117,6 +153,11 @@ function setStatus(message, kind = '') {
 function setNutritionRoutineStatus(message, kind = '') {
   nutritionRoutineStatus.className = kind ? `status ${kind}` : 'status';
   nutritionRoutineStatus.textContent = message;
+}
+
+function setDailyTrackerStatus(message, kind = '') {
+  dailyTrackerStatus.className = kind ? `status ${kind}` : 'status';
+  dailyTrackerStatus.textContent = message;
 }
 
 function clearFieldErrors(fields) {
@@ -269,8 +310,10 @@ function renderActivity(activity) {
 }
 
 function renderActivityFeed(activities) {
-  activityFeedList.replaceChildren(...activities.map(renderActivity));
-  activityFeedEmpty.hidden = activities.length > 0;
+  liveActivities = Array.isArray(activities) ? activities.slice() : [];
+  activityFeedList.replaceChildren(...liveActivities.map(renderActivity));
+  activityFeedEmpty.hidden = liveActivities.length > 0;
+  renderActivityPicker(getSelectedDailyActivityIds());
 }
 
 function renderLeaderboardEntry(entry) {
@@ -336,6 +379,26 @@ function seedUserIdFromBootstrap(users) {
   nutritionRoutineUserId.value = '1';
 }
 
+function seedDailyTrackerUserId(users) {
+  if (dailyTrackerUserId.value.trim()) {
+    return;
+  }
+
+  if (Array.isArray(users) && users.length > 0) {
+    dailyTrackerUserId.value = String(users[0].id);
+    return;
+  }
+
+  dailyTrackerUserId.value = '1';
+}
+
+function firstPaintDailyEntries(dailyEntries, userId) {
+  const windowDates = lastNLocalDates(7);
+  return (Array.isArray(dailyEntries) ? dailyEntries : [])
+    .filter((entry) => String(entry.userId) === String(userId) && windowDates.has(entry.date))
+    .sort((left, right) => String(right.date).localeCompare(String(left.date)));
+}
+
 function renderBootstrap(bootstrap) {
   renderHero(bootstrap.hero);
   renderDashboard(bootstrap.dashboard);
@@ -346,14 +409,21 @@ function renderBootstrap(bootstrap) {
   renderLeaderboard(bootstrap.leaderboard || []);
   renderRecommendations(bootstrap.recommendations || []);
   seedUserIdFromBootstrap(bootstrap.users || []);
+  seedDailyTrackerUserId(bootstrap.users || []);
+  renderDailyEntryList(firstPaintDailyEntries(bootstrap.dailyEntries || [], dailyTrackerUserId.value.trim()));
 }
 
 function showView(viewName) {
-  const showNutrition = viewName === 'nutrition-routine';
-  bootstrapView.hidden = showNutrition;
-  nutritionRoutineView.hidden = !showNutrition;
-  navHomeButton.classList.toggle('is-active', !showNutrition);
-  navNutritionRoutineButton.classList.toggle('is-active', showNutrition);
+  const isHome = viewName === 'home';
+  const isNutrition = viewName === 'nutrition-routine';
+  const isDailyTracker = viewName === 'daily-tracker';
+
+  bootstrapView.hidden = !isHome;
+  nutritionRoutineView.hidden = !isNutrition;
+  dailyTrackerView.hidden = !isDailyTracker;
+  navHomeButton.classList.toggle('is-active', isHome);
+  navNutritionRoutineButton.classList.toggle('is-active', isNutrition);
+  navDailyTrackerButton.classList.toggle('is-active', isDailyTracker);
 }
 
 function getSelectedContext() {
@@ -854,8 +924,335 @@ async function handleSubmit(event, contract) {
   }
 }
 
+function setDailyTrackerFieldError(fieldName, messages) {
+  const errorIds = {
+    userId: 'daily-tracker-user-id-error',
+    date: 'daily-tracker-date-error',
+    notes: 'daily-entry-notes-error',
+    mood: 'daily-entry-mood-error',
+    energy: 'daily-entry-energy-error',
+    completed: 'daily-entry-completed-error',
+    activityIds: 'daily-entry-activityIds-error',
+  };
+  const errorElement = document.getElementById(errorIds[fieldName] || `${fieldName}-error`);
+  if (errorElement) {
+    errorElement.textContent = Array.isArray(messages) ? messages.join(' ') : '';
+  }
+}
+
+function clearDailyTrackerFieldErrors() {
+  for (const fieldName of DAILY_ENTRY_FIELD_NAMES) {
+    setDailyTrackerFieldError(fieldName, []);
+  }
+}
+
+function showDailyTrackerFieldErrors(errors) {
+  for (const [fieldName, messages] of Object.entries(errors || {})) {
+    setDailyTrackerFieldError(fieldName, messages);
+  }
+}
+
+function getDailyTrackerContext() {
+  return {
+    userId: dailyTrackerUserId.value.trim(),
+    date: dailyTrackerDate.value,
+  };
+}
+
+function getSelectedDailyActivityIds() {
+  return Array.from(dailyEntryActivityPicker.querySelectorAll('input[type="checkbox"]:checked'))
+    .map((input) => Number(input.value))
+    .filter((id) => Number.isInteger(id));
+}
+
+function renderActivityPicker(selectedIds = []) {
+  const liveIdSet = new Set(liveActivities.map((activity) => Number(activity.id)));
+  const knownSelected = new Set(
+    selectedIds.map(Number).filter((id) => liveIdSet.has(id)),
+  );
+
+  if (liveActivities.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'activity-picker-empty';
+    empty.textContent = 'No live activities yet. Use Log activity on Home to add one.';
+    dailyEntryActivityPicker.replaceChildren(empty);
+    return;
+  }
+
+  const options = liveActivities.map((activity) => {
+    const wrapper = document.createElement('label');
+    wrapper.className = 'activity-picker-option';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = String(activity.id);
+    checkbox.checked = knownSelected.has(Number(activity.id));
+
+    const text = document.createElement('span');
+    text.textContent = `${activity.activityType} · ${activity.studentName} (#${activity.id})`;
+
+    wrapper.append(checkbox, text);
+    return wrapper;
+  });
+
+  dailyEntryActivityPicker.replaceChildren(...options);
+}
+
+function collectDailyEntryFormPayload(context) {
+  const notes = document.getElementById('daily-entry-notes').value.trim();
+  const mood = document.getElementById('daily-entry-mood').value.trim();
+  const energyRaw = document.getElementById('daily-entry-energy').value.trim();
+  const payload = {
+    userId: context.userId,
+    date: context.date,
+    notes,
+    completed: document.getElementById('daily-entry-completed').checked,
+    activityIds: getSelectedDailyActivityIds(),
+  };
+
+  if (mood) {
+    payload.mood = mood;
+  }
+
+  if (energyRaw) {
+    payload.energy = Number(energyRaw);
+  }
+
+  return payload;
+}
+
+function clearDailyEntryEdit() {
+  dailyEntryEditId.value = '';
+  document.getElementById('daily-entry-submit').textContent = 'Save daily entry';
+}
+
+function resetDailyEntryFormFields() {
+  document.getElementById('daily-entry-notes').value = '';
+  document.getElementById('daily-entry-mood').value = '';
+  document.getElementById('daily-entry-energy').value = '';
+  document.getElementById('daily-entry-completed').checked = false;
+  renderActivityPicker([]);
+  clearDailyEntryEdit();
+  clearDailyTrackerFieldErrors();
+}
+
+function fillDailyEntryForm(entry) {
+  dailyEntryEditId.value = String(entry.id);
+  document.getElementById('daily-entry-notes').value = entry.notes || '';
+  document.getElementById('daily-entry-mood').value = entry.mood || '';
+  document.getElementById('daily-entry-energy').value = entry.energy != null ? String(entry.energy) : '';
+  document.getElementById('daily-entry-completed').checked = Boolean(entry.completed);
+  renderActivityPicker(Array.isArray(entry.activityIds) ? entry.activityIds : []);
+  document.getElementById('daily-entry-submit').textContent = 'Update daily entry';
+}
+
+function findCachedDailyEntry(userId, date) {
+  return dailyEntriesCache.find(
+    (entry) => String(entry.userId) === String(userId) && entry.date === date,
+  );
+}
+
+function previewNotes(notes) {
+  const text = String(notes || '').trim();
+  if (!text) {
+    return 'No notes';
+  }
+
+  return text.length > 80 ? `${text.slice(0, 77)}...` : text;
+}
+
+function renderDailyEntryItem(entry) {
+  const item = document.createElement('li');
+  item.className = 'feed-item';
+  item.dataset.dailyEntryId = String(entry.id);
+  item.dataset.dailyEntryDate = entry.date;
+
+  const title = document.createElement('div');
+  title.className = 'feed-item-title';
+  title.textContent = entry.date;
+
+  const meta = document.createElement('div');
+  meta.className = 'feed-item-meta';
+  const moodEnergy = [
+    entry.completed ? 'Completed' : 'Not completed',
+    entry.mood ? `mood ${entry.mood}` : null,
+    entry.energy != null ? `energy ${entry.energy}` : null,
+    `${Array.isArray(entry.activityIds) ? entry.activityIds.length : 0} activities`,
+  ].filter(Boolean);
+  meta.textContent = moodEnergy.join(' · ');
+
+  const notes = document.createElement('p');
+  notes.className = 'feed-item-notes';
+  notes.textContent = previewNotes(entry.notes);
+
+  item.append(title, meta, notes);
+  item.addEventListener('click', () => {
+    dailyTrackerDate.value = entry.date;
+    fillDailyEntryForm(entry);
+    setDailyTrackerStatus(`Editing daily entry for ${entry.date}.`);
+  });
+  return item;
+}
+
+function renderDailyEntryList(entries) {
+  dailyEntriesCache = Array.isArray(entries) ? entries.slice() : [];
+  dailyEntryList.replaceChildren(...dailyEntriesCache.map(renderDailyEntryItem));
+  dailyEntryEmpty.hidden = dailyEntriesCache.length > 0;
+}
+
+async function fetchDailyEntries(userId, options = {}) {
+  const params = new URLSearchParams({ userId });
+  if (options.date) {
+    params.set('date', options.date);
+  } else if (options.days) {
+    params.set('days', String(options.days));
+  }
+
+  const response = await fetch(buildApiUrl(`/api/daily-entries/?${params.toString()}`));
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = body.errors
+      ? Object.values(body.errors).flat().join(' ')
+      : 'Unable to load daily entries.';
+    throw new Error(message);
+  }
+
+  return body.dailyEntries || [];
+}
+
+async function createDailyEntry(payload) {
+  const response = await fetch(buildApiUrl('/api/daily-entries/'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const body = await response.json().catch(() => ({}));
+  return { response, body };
+}
+
+async function updateDailyEntry(id, payload) {
+  const response = await fetch(buildApiUrl(`/api/daily-entries/${id}`), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const body = await response.json().catch(() => ({}));
+  return { response, body };
+}
+
+async function deleteDailyEntry(id) {
+  const response = await fetch(buildApiUrl(`/api/daily-entries/${id}`), {
+    method: 'DELETE',
+  });
+  if (response.status === 204) {
+    return { response, body: null };
+  }
+
+  const body = await response.json().catch(() => ({}));
+  return { response, body };
+}
+
+async function hydrateSelectedDailyDate() {
+  const { userId, date } = getDailyTrackerContext();
+  if (!userId || !date) {
+    resetDailyEntryFormFields();
+    return;
+  }
+
+  let entry = findCachedDailyEntry(userId, date);
+  if (!entry) {
+    try {
+      const matches = await fetchDailyEntries(userId, { date });
+      entry = matches[0];
+    } catch (error) {
+      setDailyTrackerStatus(error.message || 'Unable to load the selected date.', 'error');
+      resetDailyEntryFormFields();
+      return;
+    }
+  }
+
+  if (entry) {
+    fillDailyEntryForm(entry);
+  } else {
+    resetDailyEntryFormFields();
+  }
+}
+
+async function reloadDailyEntryList() {
+  const { userId, date } = getDailyTrackerContext();
+  const userError = document.getElementById('daily-tracker-user-id-error');
+  if (userError) {
+    userError.textContent = userId ? '' : 'User id is required.';
+  }
+
+  if (!userId) {
+    renderDailyEntryList([]);
+    setDailyTrackerStatus('Select a user id to load daily entries.', 'error');
+    return;
+  }
+
+  try {
+    const entries = await fetchDailyEntries(userId);
+    renderDailyEntryList(entries);
+    if (date) {
+      await hydrateSelectedDailyDate();
+    }
+  } catch (error) {
+    setDailyTrackerStatus(error.message || 'Unable to load daily entries.', 'error');
+  }
+}
+
+async function handleDailyEntrySubmit(event) {
+  event.preventDefault();
+  clearDailyTrackerFieldErrors();
+
+  const context = getDailyTrackerContext();
+  if (!context.userId || !context.date) {
+    if (!context.userId) {
+      setDailyTrackerFieldError('userId', ['User id is required.']);
+    }
+    if (!context.date) {
+      setDailyTrackerFieldError('date', ['Date is required.']);
+    }
+    setDailyTrackerStatus('User id and date are required.', 'error');
+    return;
+  }
+
+  const editId = dailyEntryEditId.value.trim();
+  const payload = collectDailyEntryFormPayload(context);
+  const submitButton = document.getElementById('daily-entry-submit');
+  submitButton.disabled = true;
+  setDailyTrackerStatus(editId ? 'Updating daily entry...' : 'Saving daily entry...');
+
+  try {
+    const { response, body } = editId
+      ? await updateDailyEntry(editId, payload)
+      : await createDailyEntry(payload);
+
+    if (!response.ok) {
+      showDailyTrackerFieldErrors(body.errors || {});
+      const message = response.status === 409
+        ? (body.errors ? Object.values(body.errors).flat().join(' ') : 'A daily entry already exists for this user and date.')
+        : 'Please fix the highlighted daily entry fields.';
+      setDailyTrackerStatus(message, 'error');
+      return;
+    }
+
+    setDailyTrackerStatus(
+      editId ? 'Daily entry updated.' : 'Daily entry saved.',
+      'success',
+    );
+    await reloadDailyEntryList();
+  } catch (error) {
+    setDailyTrackerStatus(error.message || 'Daily entry save failed.', 'error');
+  } finally {
+    submitButton.disabled = false;
+  }
+}
+
 function wireNutritionRoutineView() {
   nutritionRoutineDate.value = todayIsoDate();
+  dailyTrackerDate.value = todayIsoDate();
 
   navHomeButton.addEventListener('click', () => {
     showView('home');
@@ -866,6 +1263,27 @@ function wireNutritionRoutineView() {
     setNutritionRoutineStatus('Nutrition & Routine ready.');
     await reloadDailyLists();
   });
+
+  navDailyTrackerButton.addEventListener('click', async () => {
+    showView('daily-tracker');
+    setDailyTrackerStatus('Daily Tracker ready.');
+    renderActivityPicker(getSelectedDailyActivityIds());
+    await reloadDailyEntryList();
+  });
+
+  dailyEntryLogActivity.addEventListener('click', () => {
+    showView('home');
+  });
+
+  dailyTrackerDate.addEventListener('change', () => {
+    hydrateSelectedDailyDate();
+  });
+
+  dailyTrackerUserId.addEventListener('change', () => {
+    reloadDailyEntryList();
+  });
+
+  dailyEntryForm.addEventListener('submit', handleDailyEntrySubmit);
 
   nutritionRoutineDate.addEventListener('change', () => {
     reloadDailyLists();
@@ -919,6 +1337,10 @@ async function init() {
     if (!nutritionRoutineUserId.value) {
       nutritionRoutineUserId.value = '1';
     }
+    if (!dailyTrackerUserId.value) {
+      dailyTrackerUserId.value = '1';
+    }
+    renderActivityPicker([]);
   }
 }
 

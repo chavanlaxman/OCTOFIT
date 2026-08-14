@@ -1,4 +1,5 @@
 const { listActivities, listLeaderboard } = require('./activityService');
+const dailyEntryRepository = require('./dailyEntryRepository');
 const { listAccounts } = require('./registrationService');
 const { listTeams } = require('./teamService');
 
@@ -69,11 +70,12 @@ function buildBootstrapUsers(users) {
   });
 }
 
-function createBootstrapPayload() {
+async function createBootstrapPayload() {
   const users = listAccounts();
   const teams = listTeams();
   const activities = listActivities();
   const leaderboard = listLeaderboard();
+  const dailyEntries = await dailyEntryRepository.listAll();
 
   return {
     status: 'success',
@@ -94,6 +96,7 @@ function createBootstrapPayload() {
     challenges,
     leaderboard,
     recommendations: buildRecommendations(activities, leaderboard),
+    dailyEntries,
   };
 }
 

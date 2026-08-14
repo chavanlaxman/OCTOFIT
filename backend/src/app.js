@@ -22,6 +22,12 @@ const {
   deleteRoutine,
   listRoutine,
 } = require('./routineService');
+const {
+  createDailyEntry,
+  updateDailyEntry,
+  deleteDailyEntry,
+  listDailyEntries,
+} = require('./dailyEntryService');
 
 async function sendServiceResult(response, resultPromise) {
   const result = await resultPromise;
@@ -83,8 +89,10 @@ function createApp() {
     });
   });
 
-  app.get('/api/bootstrap/', (request, response) => {
-    response.json(createBootstrapPayload());
+  app.get('/api/bootstrap/', (request, response, next) => {
+    createBootstrapPayload()
+      .then((payload) => response.json(payload))
+      .catch(next);
   });
 
   app.post(activityContract.endpoint, (request, response) => {
@@ -144,6 +152,22 @@ function createApp() {
 
   app.delete('/api/routine/:id', (request, response, next) => {
     sendServiceResult(response, deleteRoutine(request.params.id)).catch(next);
+  });
+
+  app.post('/api/daily-entries/', (request, response, next) => {
+    sendServiceResult(response, createDailyEntry(request.body || {})).catch(next);
+  });
+
+  app.get('/api/daily-entries/', (request, response, next) => {
+    sendServiceResult(response, listDailyEntries(request.query || {})).catch(next);
+  });
+
+  app.put('/api/daily-entries/:id', (request, response, next) => {
+    sendServiceResult(response, updateDailyEntry(request.params.id, request.body || {})).catch(next);
+  });
+
+  app.delete('/api/daily-entries/:id', (request, response, next) => {
+    sendServiceResult(response, deleteDailyEntry(request.params.id)).catch(next);
   });
 
   return app;

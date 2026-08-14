@@ -12,6 +12,7 @@
       <nav class="main-nav" aria-label="Main">
         <button type="button" id="nav-home" class="nav-button is-active">Home</button>
         <button type="button" id="nav-nutrition-routine" class="nav-button">Nutrition &amp; Routine</button>
+        <button type="button" id="nav-daily-tracker" class="nav-button">Daily Tracker</button>
       </nav>
 
       <section id="bootstrap-view" class="hero-card">
@@ -197,6 +198,92 @@
             </div>
             <div id="routine-daily-empty" class="feed-empty">No routine entries for this date.</div>
             <ul id="routine-daily-list" class="feed-list"></ul>
+          </section>
+        </section>
+      </section>
+
+      <section id="daily-tracker-view" class="hero-card daily-tracker-view" hidden>
+        <p class="eyebrow">OctoFit daily fitness log</p>
+        <h1>Daily Tracker</h1>
+        <p class="subtitle">
+          Record one structured entry per day, associate live activities, and review the last seven days for the selected user.
+        </p>
+
+        <div id="daily-tracker-status" class="status" aria-live="polite"></div>
+
+        <section class="tracker-controls" aria-label="Daily tracker context">
+          <div class="field">
+            <label for="daily-tracker-date">Date</label>
+            <input id="daily-tracker-date" name="daily-tracker-date" type="date" required />
+            <div id="daily-tracker-date-error" class="field-error"></div>
+          </div>
+          <div class="field">
+            <label for="daily-tracker-user-id">User id</label>
+            <input id="daily-tracker-user-id" name="daily-tracker-user-id" type="text" inputmode="numeric" required />
+            <div id="daily-tracker-user-id-error" class="field-error"></div>
+          </div>
+        </section>
+
+        <section class="tracker-grid" aria-label="Daily entry form and list">
+          <section class="feed-panel" aria-labelledby="daily-entry-form-title">
+            <div class="feed-header">
+              <h2 id="daily-entry-form-title">Daily entry</h2>
+              <p class="feed-copy">Create today’s entry when none exists, or update the selected date.</p>
+            </div>
+            <form id="daily-entry-form" class="form-grid">
+              <input id="daily-entry-edit-id" type="hidden" value="" />
+              <div class="field">
+                <label for="daily-entry-notes">Notes (optional)</label>
+                <input id="daily-entry-notes" name="notes" type="text" />
+                <div id="daily-entry-notes-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <label for="daily-entry-mood">Mood (optional)</label>
+                <select id="daily-entry-mood" name="mood">
+                  <option value="">Select mood</option>
+                  <option value="great">Great</option>
+                  <option value="good">Good</option>
+                  <option value="okay">Okay</option>
+                  <option value="low">Low</option>
+                </select>
+                <div id="daily-entry-mood-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <label for="daily-entry-energy">Energy (optional)</label>
+                <select id="daily-entry-energy" name="energy">
+                  <option value="">Select energy</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </select>
+                <div id="daily-entry-energy-error" class="field-error"></div>
+              </div>
+              <div class="field checkbox">
+                <input id="daily-entry-completed" name="completed" type="checkbox" />
+                <label for="daily-entry-completed">Completed</label>
+                <div id="daily-entry-completed-error" class="field-error"></div>
+              </div>
+              <div class="field">
+                <span class="activity-picker-label">Associated activities</span>
+                <div id="daily-entry-activity-picker" class="activity-picker"></div>
+                <div id="daily-entry-activityIds-error" class="field-error"></div>
+              </div>
+              <div class="submit-row">
+                <button id="daily-entry-submit" type="submit">Save daily entry</button>
+                <button id="daily-entry-log-activity" type="button" class="secondary-button">Log activity on Home</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="feed-panel" aria-labelledby="daily-entry-list-title">
+            <div class="feed-header">
+              <h2 id="daily-entry-list-title">Last 7 days</h2>
+              <p class="feed-copy">Newest date first. Select a row to edit that date.</p>
+            </div>
+            <div id="daily-entry-empty" class="feed-empty">No daily entries in the last 7 days.</div>
+            <ul id="daily-entry-list" class="feed-list"></ul>
           </section>
         </section>
       </section>
