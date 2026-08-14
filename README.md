@@ -5,7 +5,7 @@ This repository contains the evolving OctoFit capstone scaffold used to deliver 
 ## Project Structure
 
 - `backend/`: Express API, registration flow, activity logging flow, bootstrap aggregation, team creation, listing, and join services, and automated tests.
-- `frontend/`: Static OctoFit UI that renders bootstrap data, activity forms, leaderboard views, and team data.
+- `frontend/`: Static OctoFit UI that renders bootstrap data, activity forms, leaderboard views, team data, Nutrition & Routine, and the Daily Tracker panel.
 - `artifacts/`: Current story requirements, architecture, design review, and implementation planning documents.
 
 ## Run Locally
@@ -56,9 +56,18 @@ npm.cmd test
 ## Current Bootstrap Behavior
 
 - Exposes the bootstrap endpoint at `/api/bootstrap/`.
-- Aggregates users, teams, activities, challenges, leaderboard data, and recommendations into a single response.
+- Aggregates users, teams, activities, challenges, leaderboard data, recommendations, and an additive `dailyEntries` array into a single response.
+- `dailyEntries` is an array of persisted Daily Tracker rows (empty when none exist). Nutrition and routine records stay out of bootstrap.
 - Reuses the same persisted team source for both team listing and bootstrap rendering.
 - Includes additive user team-association fields when a registered student has joined a team.
+
+## Current Daily Tracker Behavior
+
+- Exposes Daily Tracker CRUD at `/api/daily-entries/` (`POST`/`GET` collection, `PUT`/`DELETE` by id).
+- Persists one entry per `userId` + calendar `date`; duplicate creates return HTTP 409.
+- List requires `userId`. Omitted `days` uses the last 7 local calendar days including today; a `date` query wins over `days`.
+- The static frontend adds a Daily Tracker nav item and panel beside Home and Nutrition & Routine.
+- The panel hydrates the selected date and chooses `POST` vs `PUT` from a hidden edit id. After writes it refreshes from `GET /api/daily-entries/`.
 
 ## Retained Scaffold Behavior
 
